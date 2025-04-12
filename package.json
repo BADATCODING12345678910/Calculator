@@ -1,0 +1,29 @@
+{
+  "name": "quickalc",
+  "version": "1.0.0",
+  "description": "A feature-rich calculator web application",
+  "main": "script.js",
+  "scripts": {
+    "start": "serve .",
+    "test": "jest",
+    "dev": "live-server"
+  },
+  "keywords": [
+    "calculator",
+    "web-app",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "live-server": "^1.2.2",
+    "serve": "^14.2.1"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+} 
