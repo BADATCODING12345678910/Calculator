@@ -8,32 +8,76 @@ class EnhancedTests extends InDepthTests {
         this.coverage = {
             functions: new Set(),
             operations: new Set(),
-            buttons: new Set()
+            buttons: new Set(),
+            events: new Set()
         };
+        this.stressTestResults = [];
+        this.regressionResults = [];
+        this.visualResults = [];
     }
 
-    // Enable detailed logging for debugging
-    enableDebugMode() {
+    // Enable detailed logging for debugging with log levels
+    enableDebugMode(level = 'info') {
         this.debugMode = true;
-        console.log('Debug mode enabled');
+        this.logLevel = level; // 'error', 'warn', 'info', 'debug'
+        this.log('Debug mode enabled with level: ' + level, 'info');
     }
 
-    // Log test execution with timestamps
-    log(message) {
+    // Enhanced logging with levels and colors
+    log(message, level = 'info') {
         const timestamp = new Date().toISOString();
-        const logEntry = `[${timestamp}] ${message}`;
+        const colors = {
+            error: '#ff0000',
+            warn: '#ffa500',
+            info: '#00ff00',
+            debug: '#888888'
+        };
+        
+        const logEntry = {
+            timestamp,
+            level,
+            message,
+            stackTrace: level === 'error' ? new Error().stack : null
+        };
+        
         this.testLogs.push(logEntry);
-        if (this.debugMode) {
-            console.log(logEntry);
+        
+        if (this.debugMode && this.shouldLog(level)) {
+            console.log(
+                `%c[${timestamp}] ${level.toUpperCase()}: ${message}`,
+                `color: ${colors[level]}`
+            );
+            if (level === 'error') {
+                console.trace();
+            }
         }
     }
 
-    // Measure function execution time
+    shouldLog(level) {
+        const levels = ['error', 'warn', 'info', 'debug'];
+        return levels.indexOf(level) <= levels.indexOf(this.logLevel);
+    }
+
+    // Enhanced performance measurement with memory usage
     measurePerformance(testName, callback) {
+        const startMemory = window.performance.memory?.usedJSHeapSize;
         const start = performance.now();
-        callback();
+        
+        try {
+            callback();
+        } catch (error) {
+            this.log(`Error in ${testName}: ${error.message}`, 'error');
+            throw error;
+        }
+        
         const end = performance.now();
-        this.performanceMetrics[testName] = end - start;
+        const endMemory = window.performance.memory?.usedJSHeapSize;
+        
+        this.performanceMetrics[testName] = {
+            executionTime: end - start,
+            memoryUsage: endMemory ? endMemory - startMemory : 'Not available',
+            timestamp: new Date().toISOString()
+        };
     }
 
     // Test keyboard input handling
@@ -179,20 +223,130 @@ class EnhancedTests extends InDepthTests {
         });
     }
 
-    // Generate coverage report
-    generateCoverageReport() {
-        const totalFunctions = Object.getOwnPropertyNames(Calculator.prototype).length;
-        const totalOperations = ['+', '−', '×', '÷', 'sqrt', 'square', '%'].length;
-        const totalButtons = document.querySelectorAll('button').length;
+    // Visual regression testing
+    async testVisualRegression() {
+        this.setUp();
+        const testCases = [
+            { action: () => calculator.handleNumber('123'), name: 'Basic number input' },
+            { action: () => calculator.handleOperator('+'), name: 'Operator display' },
+            { action: () => calculator.calculate(), name: 'Calculation result' },
+            { action: () => calculator.handleError('Test error'), name: 'Error display' }
+        ];
 
+        for (const testCase of testCases) {
+            testCase.action();
+            const display = calculator.display.textContent;
+            const style = window.getComputedStyle(calculator.display);
+            
+            this.visualResults.push({
+                name: testCase.name,
+                display,
+                fontSize: style.fontSize,
+                color: style.color,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+
+    // Stress testing
+    async performStressTest() {
+        this.setUp();
+        const operations = [
+            () => calculator.handleNumber(Math.floor(Math.random() * 10).toString()),
+            () => calculator.handleOperator(['+', '−', '×', '÷'][Math.floor(Math.random() * 4)]),
+            () => calculator.calculate(),
+            () => calculator.clear()
+        ];
+
+        const startTime = performance.now();
+        let operationCount = 0;
+        
+        while (performance.now() - startTime < 1000) { // 1 second of stress testing
+            const operation = operations[Math.floor(Math.random() * operations.length)];
+            try {
+                operation();
+                operationCount++;
+            } catch (error) {
+                this.log(`Stress test error at operation ${operationCount}: ${error.message}`, 'error');
+                break;
+            }
+        }
+
+        this.stressTestResults.push({
+            operationsPerSecond: operationCount,
+            timestamp: new Date().toISOString(),
+            errors: this.failedTests.length
+        });
+    }
+
+    // Test event handling
+    testEventHandling() {
+        this.setUp();
+        const events = [
+            { type: 'click', target: 'button', expected: true },
+            { type: 'keydown', key: 'Enter', expected: true },
+            { type: 'keydown', key: 'Escape', expected: true },
+            { type: 'paste', data: '123', expected: false }
+        ];
+
+        events.forEach(event => {
+            try {
+                let handled = false;
+                if (event.type === 'click') {
+                    const button = document.querySelector('button');
+                    handled = button.dispatchEvent(new MouseEvent('click'));
+                } else if (event.type === 'keydown') {
+                    handled = document.dispatchEvent(new KeyboardEvent('keydown', { key: event.key }));
+                } else if (event.type === 'paste') {
+                    handled = document.dispatchEvent(new ClipboardEvent('paste', { 
+                        clipboardData: new DataTransfer()
+                    }));
+                }
+                
+                this.assert(
+                    handled === event.expected,
+                    `Event handling: ${event.type} ${event.key || ''}`
+                );
+                this.coverage.events.add(event.type);
+            } catch (error) {
+                this.log(`Event test error: ${error.message}`, 'error');
+            }
+        });
+    }
+
+    // Test accessibility
+    testAccessibility() {
+        const buttons = document.querySelectorAll('button');
+        buttons.forEach(button => {
+            this.assert(
+                button.getAttribute('role') === 'button' || button.tagName === 'BUTTON',
+                `Button role: ${button.textContent}`
+            );
+            this.assert(
+                window.getComputedStyle(button).color !== window.getComputedStyle(button).backgroundColor,
+                `Button contrast: ${button.textContent}`
+            );
+        });
+    }
+
+    // Generate enhanced coverage report
+    generateCoverageReport() {
+        const baseReport = super.generateCoverageReport();
+        const totalEvents = ['click', 'keydown', 'keyup', 'paste'].length;
+        
         return {
-            functionCoverage: (this.coverage.functions.size / totalFunctions) * 100,
-            operationCoverage: (this.coverage.operations.size / totalOperations) * 100,
-            buttonCoverage: (this.coverage.buttons.size / totalButtons) * 100
+            ...baseReport,
+            eventCoverage: (this.coverage.events.size / totalEvents) * 100,
+            timestamp: new Date().toISOString(),
+            details: {
+                coveredFunctions: Array.from(this.coverage.functions),
+                coveredOperations: Array.from(this.coverage.operations),
+                coveredEvents: Array.from(this.coverage.events)
+            }
         };
     }
 
-    // Enhanced test results display
+    // Enhanced test results display with interactive features
     displayTestResults() {
         const coverage = this.generateCoverageReport();
         const testResults = document.createElement('div');
@@ -208,48 +362,102 @@ class EnhancedTests extends InDepthTests {
             color: white;
             font-family: monospace;
             z-index: 1000;
-            max-height: 80vh;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            min-width: 60vw;
+            min-width: 80vw;
         `;
 
         const content = `
-            <h2 style="color: #00ff00; margin-bottom: 20px;">Enhanced Test Results</h2>
-            
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #00ff00;">Test Summary</h3>
-                <div>Total Tests: ${this.totalTests}</div>
-                <div>Passed: ${this.passedTests}</div>
-                <div>Failed: ${this.totalTests - this.passedTests}</div>
-                <div>Success Rate: ${((this.passedTests / this.totalTests) * 100).toFixed(2)}%</div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #00ff00;">Coverage Report</h3>
-                <div>Function Coverage: ${coverage.functionCoverage.toFixed(2)}%</div>
-                <div>Operation Coverage: ${coverage.operationCoverage.toFixed(2)}%</div>
-                <div>Button Coverage: ${coverage.buttonCoverage.toFixed(2)}%</div>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #00ff00;">Performance Metrics</h3>
-                ${Object.entries(this.performanceMetrics)
-                    .map(([test, time]) => `<div>${test}: ${time.toFixed(2)}ms</div>`)
-                    .join('')}
-            </div>
-
-            ${this.failedTests.length > 0 ? `
-                <div style="margin-bottom: 20px;">
-                    <h3 style="color: #ff0000;">Failed Tests</h3>
-                    ${this.failedTests.map(test => `<div>❌ ${test}</div>`).join('')}
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <h2 style="color: #00ff00; margin-bottom: 20px;">Enhanced Test Results</h2>
+                <div>
+                    <button onclick="document.querySelector('.test-content').style.display='block'; document.querySelector('.visual-content').style.display='none';" style="margin: 0 5px;">Tests</button>
+                    <button onclick="document.querySelector('.test-content').style.display='none'; document.querySelector('.visual-content').style.display='block';" style="margin: 0 5px;">Visual Tests</button>
                 </div>
-            ` : ''}
+            </div>
 
-            <div style="margin-bottom: 20px;">
-                <h3 style="color: #00ff00;">Debug Log</h3>
-                <div style="max-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.3);">
-                    ${this.testLogs.map(log => `<div>${log}</div>`).join('')}
+            <div class="test-content">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Test Summary</h3>
+                    <div>Total Tests: ${this.totalTests}</div>
+                    <div>Passed: ${this.passedTests}</div>
+                    <div>Failed: ${this.totalTests - this.passedTests}</div>
+                    <div>Success Rate: ${((this.passedTests / this.totalTests) * 100).toFixed(2)}%</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Coverage Report</h3>
+                    <div>Function Coverage: ${coverage.functionCoverage.toFixed(2)}%</div>
+                    <div>Operation Coverage: ${coverage.operationCoverage.toFixed(2)}%</div>
+                    <div>Button Coverage: ${coverage.buttonCoverage.toFixed(2)}%</div>
+                    <div>Event Coverage: ${coverage.eventCoverage.toFixed(2)}%</div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Performance Metrics</h3>
+                    ${Object.entries(this.performanceMetrics)
+                        .map(([test, data]) => `
+                            <div>
+                                ${test}:
+                                <span style="color: #888">Time: ${data.executionTime.toFixed(2)}ms</span>
+                                ${data.memoryUsage !== 'Not available' ? 
+                                    `<span style="color: #888"> | Memory: ${(data.memoryUsage / 1024 / 1024).toFixed(2)}MB</span>` : 
+                                    ''}
+                            </div>
+                        `).join('')}
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Stress Test Results</h3>
+                    ${this.stressTestResults.map(result => `
+                        <div>Operations/sec: ${result.operationsPerSecond}</div>
+                        <div>Errors: ${result.errors}</div>
+                    `).join('')}
+                </div>
+
+                ${this.failedTests.length > 0 ? `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #ff0000;">Failed Tests</h3>
+                        ${this.failedTests.map(test => `<div>❌ ${test}</div>`).join('')}
+                    </div>
+                ` : ''}
+
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Debug Log</h3>
+                    <select onchange="document.querySelectorAll('.log-entry').forEach(e => e.style.display = this.value === 'all' || e.dataset.level === this.value ? 'block' : 'none')" style="margin-bottom: 10px; background: #333; color: white; border: 1px solid #666; padding: 5px;">
+                        <option value="all">All Levels</option>
+                        <option value="error">Errors Only</option>
+                        <option value="warn">Warnings+</option>
+                        <option value="info">Info+</option>
+                        <option value="debug">Debug</option>
+                    </select>
+                    <div style="max-height: 200px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.3);">
+                        ${this.testLogs.map(log => `
+                            <div class="log-entry" data-level="${log.level}" style="color: ${
+                                log.level === 'error' ? '#ff0000' :
+                                log.level === 'warn' ? '#ffa500' :
+                                log.level === 'info' ? '#00ff00' : '#888888'
+                            }">
+                                [${log.timestamp}] ${log.level.toUpperCase()}: ${log.message}
+                                ${log.stackTrace ? `<pre style="font-size: 12px; margin-left: 20px; color: #666">${log.stackTrace}</pre>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <div class="visual-content" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #00ff00;">Visual Regression Results</h3>
+                    ${this.visualResults.map(result => `
+                        <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                            <div>Test: ${result.name}</div>
+                            <div>Display: <span style="font-family: ${result.fontFamily}; font-size: ${result.fontSize}; color: ${result.color}">${result.display}</span></div>
+                            <div>Style: ${result.fontSize}, ${result.color}</div>
+                            <div>Timestamp: ${result.timestamp}</div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
 
@@ -268,10 +476,10 @@ class EnhancedTests extends InDepthTests {
         document.body.appendChild(testResults);
     }
 
-    // Run enhanced test suite
-    runEnhancedTests() {
-        this.enableDebugMode();
-        this.log('Starting enhanced test suite...');
+    // Run enhanced test suite with all new features
+    async runEnhancedTests() {
+        this.enableDebugMode('debug');
+        this.log('Starting enhanced test suite...', 'info');
 
         const tests = [
             'testNumberInput',
@@ -286,17 +494,30 @@ class EnhancedTests extends InDepthTests {
             'testMemoryOperations',
             'testStatePersistence',
             'testEdgeCases',
-            'testDisplayConsistency'
+            'testDisplayConsistency',
+            'testEventHandling',
+            'testAccessibility'
         ];
 
-        tests.forEach(testName => {
-            this.log(`Running ${testName}...`);
-            this.measurePerformance(testName, () => {
-                this[testName]();
-            });
-        });
+        try {
+            for (const testName of tests) {
+                this.log(`Running ${testName}...`, 'info');
+                await this.measurePerformance(testName, async () => {
+                    await this[testName]();
+                });
+            }
 
-        this.log('Test suite completed');
+            this.log('Running stress test...', 'info');
+            await this.performStressTest();
+
+            this.log('Running visual regression tests...', 'info');
+            await this.testVisualRegression();
+
+        } catch (error) {
+            this.log(`Test suite error: ${error.message}`, 'error');
+        }
+
+        this.log('Test suite completed', 'info');
         this.displayTestResults();
     }
 } 
