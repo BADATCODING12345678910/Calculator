@@ -205,6 +205,19 @@ class Calculator {
 
     // Event Listeners
     initializeEventListeners() {
+        // Add event listeners for all buttons
+        document.querySelectorAll('.calculator button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = button.dataset.action;
+                
+                if (action === 'clear') {
+                    this.clear();
+                    return;
+                }
+                // ... existing code ...
+            });
+        });
+
         // Number buttons
         document.querySelectorAll('.number').forEach(button => {
             button.addEventListener('click', () => {
@@ -373,6 +386,36 @@ class Calculator {
         } else if (key === 'Backspace') {
             this.handleSpecialFunction('⌫');
         }
+    }
+
+    clear() {
+        // Reset all calculator state
+        this.currentInput = '0';
+        this.previousInput = '';
+        this.operation = null;
+        this.shouldResetDisplay = false;
+        this.calculationHistory = [];
+        
+        // Update displays
+        this.updateDisplay();
+        this.updateHistory();
+    }
+
+    updateHistory() {
+        if (!this.history) return;
+        
+        // Clear existing history
+        this.history.innerHTML = '';
+        
+        // Add each calculation to history
+        this.calculationHistory.forEach(calc => {
+            this.history.innerHTML += `${calc}<br>`;
+        });
+    }
+    
+    addToHistory(calculation) {
+        this.calculationHistory.push(calculation);
+        this.updateHistory();
     }
 }
 
