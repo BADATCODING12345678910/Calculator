@@ -302,14 +302,20 @@
     <script src="in_depth_tests.js"></script>
     <script src="enhanced_tests.js"></script>
     <script>
-        function runTests() {
-            const tests = new InDepthTests();
-            tests.runAllTests();
-        }
-
-        document.getElementById('testButton').addEventListener('click', function() {
-            const enhancedTests = new EnhancedTests();
-            enhancedTests.runEnhancedTests();
+        document.getElementById('testButton').addEventListener('click', async function() {
+            try {
+                this.disabled = true;
+                this.textContent = 'Running Tests...';
+                
+                const enhancedTests = new EnhancedTests();
+                await enhancedTests.runEnhancedTests();
+            } catch (error) {
+                console.error('Test error:', error);
+                alert('An error occurred while running tests. Check console for details.');
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Run Tests';
+            }
         });
     </script>
 </body>

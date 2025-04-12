@@ -59,12 +59,12 @@ class EnhancedTests extends InDepthTests {
     }
 
     // Enhanced performance measurement with memory usage
-    measurePerformance(testName, callback) {
+    async measurePerformance(testName, callback) {
         const startMemory = window.performance.memory?.usedJSHeapSize;
         const start = performance.now();
         
         try {
-            callback();
+            await callback();
         } catch (error) {
             this.log(`Error in ${testName}: ${error.message}`, 'error');
             throw error;
@@ -476,6 +476,11 @@ class EnhancedTests extends InDepthTests {
         document.body.appendChild(testResults);
     }
 
+    // Add a delay between tests to prevent UI freezing
+    async delay(ms = 0) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     // Run enhanced test suite with all new features
     async runEnhancedTests() {
         this.enableDebugMode('debug');
@@ -505,16 +510,20 @@ class EnhancedTests extends InDepthTests {
                 await this.measurePerformance(testName, async () => {
                     await this[testName]();
                 });
+                // Add small delay between tests to prevent UI freezing
+                await this.delay(10);
             }
 
             this.log('Running stress test...', 'info');
             await this.performStressTest();
+            await this.delay(10);
 
             this.log('Running visual regression tests...', 'info');
             await this.testVisualRegression();
 
         } catch (error) {
             this.log(`Test suite error: ${error.message}`, 'error');
+            throw error; // Re-throw to be caught by the button handler
         }
 
         this.log('Test suite completed', 'info');
