@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="QuickCalc - Fast and simple calculator">
+    <meta name="description" content="QuickCalc - Windows-style calculator">
     <meta name="theme-color" content="#202020">
     <meta name="author" content="Your Name">
     <meta property="og:title" content="QuickCalc">
@@ -20,46 +20,85 @@
 </head>
 <body>
     <div class="calculator">
-        <div class="display-container">
-            <div class="memory-indicators">
-                <span id="memory-indicator" class="hidden">M</span>
-                <span id="history-indicator" class="hidden">H</span>
+        <div class="title-bar">
+            <div class="title-left">
+                <button class="menu-button">☰</button>
+                <span class="calc-icon">🧮</span>
+                <span>Calculator</span>
             </div>
-            <div class="display">
-                <div id="history" class="history"></div>
-                <input type="text" id="display" readonly>
+            <div class="mode">
+                <span class="current-mode">Standard</span>
+                <button class="history-toggle">📑</button>
+            </div>
+            <div class="window-controls">
+                <button class="minimize">−</button>
+                <button class="maximize">□</button>
+                <button class="close">×</button>
             </div>
         </div>
-        <div class="buttons">
-            <button class="memory" id="mc">MC</button>
-            <button class="memory" id="mr">MR</button>
-            <button class="memory" id="m-plus">M+</button>
-            <button class="memory" id="m-minus">M-</button>
-            <button class="memory" id="ms">MS</button>
-            
-            <button class="clear">C</button>
-            <button class="operator">±</button>
-            <button class="operator">%</button>
-            <button class="operator">÷</button>
-            
-            <button class="number">7</button>
-            <button class="number">8</button>
-            <button class="number">9</button>
-            <button class="operator">×</button>
-            
-            <button class="number">4</button>
-            <button class="number">5</button>
-            <button class="number">6</button>
-            <button class="operator">-</button>
-            
-            <button class="number">1</button>
-            <button class="number">2</button>
-            <button class="number">3</button>
-            <button class="operator">+</button>
-            
-            <button class="number zero">0</button>
-            <button class="number">.</button>
-            <button class="equals">=</button>
+        
+        <div class="main-container">
+            <div class="calc-content">
+                <div class="display-container">
+                    <div class="history"></div>
+                    <div class="result">0</div>
+                </div>
+
+                <div class="memory-row">
+                    <button class="memory" id="mc">MC</button>
+                    <button class="memory" id="mr">MR</button>
+                    <button class="memory" id="m-plus">M+</button>
+                    <button class="memory" id="m-minus">M−</button>
+                    <button class="memory" id="ms">MS</button>
+                </div>
+
+                <div class="buttons">
+                    <button class="function">%</button>
+                    <button class="function">CE</button>
+                    <button class="function">C</button>
+                    <button class="function">⌫</button>
+
+                    <button class="function">¹/x</button>
+                    <button class="function">x²</button>
+                    <button class="function">√x</button>
+                    <button class="operator">÷</button>
+
+                    <button class="number">7</button>
+                    <button class="number">8</button>
+                    <button class="number">9</button>
+                    <button class="operator">×</button>
+
+                    <button class="number">4</button>
+                    <button class="number">5</button>
+                    <button class="number">6</button>
+                    <button class="operator">−</button>
+
+                    <button class="number">1</button>
+                    <button class="number">2</button>
+                    <button class="number">3</button>
+                    <button class="operator">+</button>
+
+                    <button class="function">±</button>
+                    <button class="number">0</button>
+                    <button class="number">.</button>
+                    <button class="equals">=</button>
+                </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-header">
+                    <button class="panel-tab active">History</button>
+                    <button class="panel-tab">Memory</button>
+                </div>
+                <div class="panel-content">
+                    <div class="history-content">
+                        <p class="no-history">There's no history yet.</p>
+                    </div>
+                    <div class="memory-content hidden">
+                        <p class="no-memory">There's nothing saved in memory.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>
