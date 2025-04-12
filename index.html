@@ -106,5 +106,14 @@
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="tests.js"></script>
+    <script src="quick_test.js"></script>
+    <script>
+        // Run tests when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const tests = new CalculatorTests();
+            tests.runAllTests();
+        });
+    </script>
 </body>
 </html> 
