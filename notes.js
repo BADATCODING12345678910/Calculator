@@ -6,12 +6,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveNoteBtn = document.querySelector('.save-note');
     const deleteNoteBtn = document.querySelector('.delete-note');
 
-    let notes = JSON.parse(localStorage.getItem('notes')) || [];
+    let notes = [];
     let currentNoteId = null;
+    let isSaving = false;
 
-    // Function to save notes to localStorage
+    // Initialize notes from localStorage with error handling
+    const initializeNotes = () => {
+        try {
+            const savedNotes = localStorage.getItem('notes');
+            notes = savedNotes ? JSON.parse(savedNotes) : [];
+            
+            // Validate note structure
+            notes = notes.filter(note => 
+                note && 
+                typeof note.id === 'number' && 
+                typeof note.title === 'string' && 
+                typeof note.content === 'string' &&
+                typeof note.lastModified === 'string'
+            );
+        } catch (error) {
+            console.error('Error loading notes:', error);
+            notes = [];
+            showNotification('Error loading notes. Starting with empty notes.', 'error');
+        }
+    };
+
+    // Show notification to user
+    const showNotification = (message, type = 'info') => {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
+    };
+
+    // Function to save notes to localStorage with error handling
     const saveToStorage = () => {
-        localStorage.setItem('notes', JSON.stringify(notes));
+        if (isSaving) return;
+        isSaving = true;
+
+        try {
+            localStorage.setItem('notes', JSON.stringify(notes));
+            showNotification('Notes saved successfully', 'success');
+        } catch (error) {
+            console.error('Error saving notes:', error);
+            showNotification('Error saving notes. Please try again.', 'error');
+            
+            // Try to save to sessionStorage as backup
+            try {
+                sessionStorage.setItem('notes_backup', JSON.stringify(notes));
+                showNotification('Notes backed up to session storage', 'warning');
+            } catch (backupError) {
+                console.error('Backup save failed:', backupError);
+            }
+        } finally {
+            isSaving = false;
+        }
     };
 
     // Function to create a new note
@@ -26,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveToStorage();
         renderNotesList();
         selectNote(note.id);
+        showNotification('New note created', 'success');
     };
 
     // Function to render the notes list
@@ -52,30 +108,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (note) {
             noteTitle.value = note.title;
             noteContent.value = note.content;
-            renderNotesList(); // Update active state in list
+            renderNotesList();
+            showNotification('Note loaded', 'info');
         }
     };
 
     // Function to save the current note
     const saveCurrentNote = () => {
-        if (currentNoteId === null) return;
+        if (currentNoteId === null) {
+            showNotification('No note selected', 'error');
+            return;
+        }
+
+        // Validate note content
+        const title = noteTitle.value.trim();
+        const content = noteContent.value.trim();
+
+        if (!title && !content) {
+            showNotification('Note is empty', 'warning');
+            return;
+        }
 
         const noteIndex = notes.findIndex(n => n.id === currentNoteId);
         if (noteIndex > -1) {
             notes[noteIndex] = {
                 ...notes[noteIndex],
-                title: noteTitle.value,
-                content: noteContent.value,
+                title: title || 'Untitled Note',
+                content: content,
                 lastModified: new Date().toISOString()
             };
             saveToStorage();
             renderNotesList();
+            showNotification('Note saved', 'success');
         }
     };
 
     // Function to delete the current note
     const deleteCurrentNote = () => {
-        if (currentNoteId === null) return;
+        if (currentNoteId === null) {
+            showNotification('No note selected', 'error');
+            return;
+        }
 
         if (confirm('Are you sure you want to delete this note?')) {
             notes = notes.filter(n => n.id !== currentNoteId);
@@ -88,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 noteTitle.value = '';
                 noteContent.value = '';
             }
+            showNotification('Note deleted', 'success');
         }
     };
 
@@ -96,17 +170,22 @@ document.addEventListener('DOMContentLoaded', () => {
     saveNoteBtn.addEventListener('click', saveCurrentNote);
     deleteNoteBtn.addEventListener('click', deleteCurrentNote);
 
-    // Auto-save functionality
+    // Auto-save functionality with debounce
     let autoSaveTimeout;
     const autoSave = () => {
         clearTimeout(autoSaveTimeout);
-        autoSaveTimeout = setTimeout(saveCurrentNote, 1000);
+        autoSaveTimeout = setTimeout(() => {
+            if (!isSaving) {
+                saveCurrentNote();
+            }
+        }, 2000);
     };
 
     noteTitle.addEventListener('input', autoSave);
     noteContent.addEventListener('input', autoSave);
 
-    // Initial render
+    // Initialize
+    initializeNotes();
     renderNotesList();
     if (notes.length > 0) {
         selectNote(notes[0].id);
