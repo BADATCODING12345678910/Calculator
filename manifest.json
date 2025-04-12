@@ -1,16 +1,18 @@
 {
     "name": "QuickCalc",
     "short_name": "QuickCalc",
-    "description": "Fast and simple calculator",
-    "start_url": "index.html",
+    "description": "Fast and simple calculator with notes",
+    "start_url": "/quickalc/",
     "display": "standalone",
-    "background_color": "#f0f2f5",
-    "theme_color": "#228be6",
+    "background_color": "#202020",
+    "theme_color": "#202020",
     "icons": [
         {
             "src": "icon.svg",
             "sizes": "any",
-            "type": "image/svg+xml"
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
         }
-    ]
+    ],
+    "scope": "/quickalc/"
 } 

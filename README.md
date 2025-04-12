@@ -1,36 +1,52 @@
-# Simple Calculator Website
+# QuickCalc
 
-A clean, modern calculator web application with a responsive design.
+A modern, Windows-style calculator with notes functionality built with HTML, CSS, and JavaScript.
 
 ## Features
-- Basic arithmetic operations (addition, subtraction, multiplication, division)
-- Clean, modern UI
-- Responsive design
-- Error handling
+
+- 🧮 Calculator with basic and advanced operations
+- 📝 Note-taking functionality
+- 💾 Auto-save and backup features
+- 📱 Responsive design
+- 🎨 Modern Windows-style UI
+- ⌨️ Keyboard support
+- 🔄 History and memory functions
+
+## Usage
+
+Visit [QuickCalc](https://BADATCODING12345678910.github.io/quickalc) to use the calculator.
+
+### Calculator Features
+- Basic operations (+, -, ×, ÷)
+- Advanced functions (x², √x, ¹/x)
+- Memory operations (MC, MR, M+, M-, MS)
+- History tracking
 - Keyboard support
 
-## How to Use
-1. Open `index.html` in any modern web browser
-2. Use mouse clicks or keyboard to input numbers and operations
-3. Press 'C' or click the clear button to reset
-4. Press '=' or click the equals button to calculate
+### Notes Features
+- Create and edit notes
+- Auto-save functionality
+- Backup to session storage
+- User notifications
+- Clean, modern interface
 
-## Keyboard Support
-- Numbers: 0-9
-- Operations: +, -, *, /
-- Equals: Enter or =
-- Clear: C or Escape
+## Installation
 
-## Technologies Used
-- HTML5
-- CSS3
-- JavaScript (ES6+)
+1. Clone the repository:
+```bash
+git clone https://github.com/BADATCODING12345678910/quickalc.git
+```
 
-## Browser Support
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
+2. Open `index.html` in your browser
+
+## Development
+
+The project uses vanilla JavaScript, HTML, and CSS. No build process is required.
 
 ## License
-MIT License 
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. 
