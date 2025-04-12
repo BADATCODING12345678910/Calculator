@@ -1,7 +1,7 @@
 {
-    "name": "Simple Calculator",
-    "short_name": "Calculator",
-    "description": "A clean, modern calculator web application",
+    "name": "QuickCalc",
+    "short_name": "QuickCalc",
+    "description": "Fast and simple calculator",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#f0f2f5",
