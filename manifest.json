@@ -1,0 +1,16 @@
+{
+    "name": "Simple Calculator",
+    "short_name": "Calculator",
+    "description": "A clean, modern calculator web application",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#f0f2f5",
+    "theme_color": "#228be6",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+} 
