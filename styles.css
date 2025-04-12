@@ -28,16 +28,38 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    background: #1f1f1f;
-    height: 32px;
+    background-color: var(--title-bar-bg);
+    padding: 4px 8px;
+    -webkit-app-region: drag;
+    user-select: none;
 }
 
 .title-left {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 16px;
+    margin-left: 20px;
+}
+
+.nav-link {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.nav-link:hover {
+    background-color: var(--hover-bg);
+}
+
+.nav-link.active {
+    background-color: var(--active-bg);
 }
 
 .menu-button, .history-toggle {
