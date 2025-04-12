@@ -18,6 +18,7 @@
             margin: 0;
             padding: 0;
             user-select: none;
+            font-family: "Segoe UI", sans-serif;
         }
 
         body {
@@ -26,39 +27,44 @@
             align-items: center;
             min-height: 100vh;
             background: #202020;
-            font-family: "Segoe UI", sans-serif;
             color: white;
         }
 
         .calculator {
             background: #202020;
-            width: 320px;
-            padding: 10px;
+            width: 356px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
         }
 
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px;
-            font-size: 16px;
+            padding: 12px 16px;
+            background: #1e1e1e;
+            border-bottom: 1px solid #333;
         }
 
         .header-title {
-            margin-left: 10px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #fff;
         }
 
         .nav-links {
             display: flex;
-            gap: 20px;
+            gap: 16px;
         }
 
         .nav-link {
-            color: white;
+            color: #fff;
             text-decoration: none;
             font-size: 14px;
             padding: 4px 8px;
             border-radius: 4px;
+            transition: background-color 0.2s;
         }
 
         .nav-link:hover {
@@ -70,98 +76,117 @@
         }
 
         .test-button {
-            background: #0066cc;
+            background: #0078d4;
             border: none;
             color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
             cursor: pointer;
-            font-family: "Segoe UI", sans-serif;
-            font-size: 14px;
+            transition: background-color 0.2s;
         }
 
         .test-button:hover {
-            background: #0052a3;
+            background: #1084e0;
         }
 
         .display {
-            height: 200px;
             padding: 20px;
             text-align: right;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            background: #1e1e1e;
         }
 
         .history {
-            color: rgba(255, 255, 255, 0.6);
+            min-height: 24px;
             font-size: 14px;
-            min-height: 20px;
-            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
         }
 
         .current {
-            font-size: 48px;
-            font-weight: 200;
-            margin-top: 10px;
-            word-wrap: break-word;
+            font-size: 44px;
+            font-weight: 300;
+            color: #fff;
             word-break: break-all;
+            line-height: 1.2;
         }
 
         .memory-row {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 2px;
-            margin-bottom: 2px;
+            gap: 1px;
+            padding: 1px;
+            background: #1e1e1e;
+        }
+
+        .memory-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 8px 0;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .memory-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .buttons {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2px;
+            gap: 1px;
+            padding: 1px;
+            background: #1e1e1e;
         }
 
         button {
-            background: rgba(255, 255, 255, 0.1);
             border: none;
-            color: white;
+            padding: 20px 0;
             font-size: 16px;
-            padding: 15px 0;
             cursor: pointer;
-            transition: background 0.2s;
-            font-family: "Segoe UI", sans-serif;
-            min-height: 48px;
+            transition: background-color 0.2s;
+            background: #323232;
+            color: white;
         }
 
         button:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: #3f3f3f;
         }
 
         button:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .memory-btn {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .operator {
-            font-size: 20px;
-        }
-
-        .equals {
-            background: #0066cc;
-        }
-
-        .equals:hover {
-            background: #0052a3;
+            background: #4d4d4d;
         }
 
         .special {
-            color: white;
-            font-size: 14px;
+            background: #2b2b2b;
+            font-size: 15px;
+        }
+
+        .special:hover {
+            background: #383838;
+        }
+
+        .operator {
+            background: #2b2b2b;
+            font-size: 18px;
+        }
+
+        .operator:hover {
+            background: #383838;
+        }
+
+        .equals {
+            background: #0078d4;
+        }
+
+        .equals:hover {
+            background: #1084e0;
+        }
+
+        .equals:active {
+            background: #006cbd;
         }
     </style>
     <link rel="manifest" href="manifest.json">
@@ -210,7 +235,7 @@
             <button onclick="calculator.handleNumber('4')">4</button>
             <button onclick="calculator.handleNumber('5')">5</button>
             <button onclick="calculator.handleNumber('6')">6</button>
-            <button class="operator" onclick="calculator.handleOperator('-')">−</button>
+            <button class="operator" onclick="calculator.handleOperator('−')">−</button>
 
             <button onclick="calculator.handleNumber('1')">1</button>
             <button onclick="calculator.handleNumber('2')">2</button>
