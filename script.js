@@ -205,25 +205,47 @@ class Calculator {
 
     // Event Listeners
     initializeEventListeners() {
-        // Add event listeners for all buttons
         document.querySelectorAll('.calculator button').forEach(button => {
-            button.addEventListener('click', (e) => {
+            button.addEventListener('click', () => {
                 const action = button.dataset.action;
-                
-                if (action === 'clear') {
-                    this.clear();
-                    return;
-                }
 
                 if (!isNaN(action)) {
-                    this.appendNumber(action);
-                } else if (action === 'decimal') {
-                    this.appendDecimal();
-                } else if (['+', '-', '×', '÷'].includes(action)) {
-                    this.setOperation(action);
-                } else if (action === 'equals') {
-                    this.calculate();
+                    // Number buttons
+                    if (this.shouldResetDisplay) {
+                        this.currentInput = action;
+                        this.shouldResetDisplay = false;
+                    } else {
+                        this.currentInput = this.currentInput === '0' ? action : this.currentInput + action;
+                    }
+                } else {
+                    // Action buttons
+                    switch (action) {
+                        case 'clear':
+                            this.clear();
+                            break;
+                        case 'decimal':
+                            if (!this.currentInput.includes('.')) {
+                                this.currentInput += '.';
+                            }
+                            break;
+                        case 'sign':
+                            this.currentInput = (-parseFloat(this.currentInput)).toString();
+                            break;
+                        case 'percent':
+                            this.currentInput = (parseFloat(this.currentInput) / 100).toString();
+                            break;
+                        case 'add':
+                        case 'subtract':
+                        case 'multiply':
+                        case 'divide':
+                            this.handleOperation(action);
+                            break;
+                        case 'equals':
+                            this.calculate();
+                            break;
+                    }
                 }
+                this.updateDisplay();
             });
         });
 
