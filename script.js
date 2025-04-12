@@ -1,110 +1,136 @@
-class Calculator {
-    constructor() {
-        // DOM elements
-        this.display = document.querySelector('.current');
-        this.history = document.querySelector('.history');
-        
-        // Initialize state
-        this.currentInput = '0';
-        this.previousInput = '';
-        this.operation = null;
-        this.shouldResetDisplay = false;
-        this.calculationHistory = [];
-        
-        // Initialize the calculator
-        this.initializeDisplay();
-        this.initializeEventListeners();
-    }
+const calculator = {
+    currentValue: '0',
+    previousValue: '',
+    operator: null,
+    shouldResetDisplay: false,
+    history: [],
 
-    initializeDisplay() {
+    display: document.querySelector('.current'),
+    historyDisplay: document.querySelector('.history'),
+
+    initialize() {
         this.updateDisplay();
-        this.updateHistory();
-    }
+    },
 
     updateDisplay() {
-        this.display.textContent = this.currentInput;
-    }
+        // Format large numbers with commas
+        let displayValue = this.currentValue;
+        if (!isNaN(displayValue) && displayValue !== '') {
+            const num = parseFloat(displayValue);
+            if (Math.abs(num) >= 1000) {
+                displayValue = num.toLocaleString('en-US');
+            }
+        }
+        this.display.textContent = displayValue;
+        this.historyDisplay.innerHTML = this.history.join('<br>');
+    },
 
-    updateHistory() {
-        this.history.innerHTML = this.calculationHistory.join('<br>');
-    }
+    handleNumber(num) {
+        if (this.shouldResetDisplay) {
+            this.currentValue = num;
+            this.shouldResetDisplay = false;
+        } else {
+            this.currentValue = this.currentValue === '0' ? num : this.currentValue + num;
+        }
+        this.updateDisplay();
+    },
 
-    initializeEventListeners() {
-        document.querySelectorAll('.calculator button').forEach(button => {
-            button.addEventListener('click', () => {
-                const action = button.dataset.action;
-                if (!action) return;
+    handleDecimal() {
+        if (!this.currentValue.includes('.')) {
+            this.currentValue += '.';
+            this.updateDisplay();
+        }
+    },
 
-                if (!isNaN(action)) {
-                    // Number buttons
-                    if (this.shouldResetDisplay) {
-                        this.currentInput = action;
-                        this.shouldResetDisplay = false;
-                    } else {
-                        this.currentInput = this.currentInput === '0' ? action : this.currentInput + action;
-                    }
-                } else {
-                    // Action buttons
-                    switch (action) {
-                        case 'clear':
-                            this.clear();
-                            break;
-                        case 'decimal':
-                            if (!this.currentInput.includes('.')) {
-                                this.currentInput += '.';
-                            }
-                            break;
-                        case 'sign':
-                            this.currentInput = (-parseFloat(this.currentInput)).toString();
-                            break;
-                        case 'percent':
-                            this.currentInput = (parseFloat(this.currentInput) / 100).toString();
-                            break;
-                        case 'add':
-                        case 'subtract':
-                        case 'multiply':
-                        case 'divide':
-                            this.handleOperation(action);
-                            break;
-                        case 'equals':
-                            this.calculate();
-                            break;
-                    }
-                }
-                this.updateDisplay();
-            });
-        });
-    }
-
-    handleOperation(op) {
-        if (this.operation !== null) {
+    handleOperator(op) {
+        if (this.operator !== null) {
             this.calculate();
         }
-        this.operation = op;
-        this.previousInput = this.currentInput;
+        this.operator = op;
+        this.previousValue = this.currentValue;
         this.shouldResetDisplay = true;
-    }
+    },
+
+    handleBackspace() {
+        if (this.currentValue.length > 1) {
+            this.currentValue = this.currentValue.slice(0, -1);
+        } else {
+            this.currentValue = '0';
+        }
+        this.updateDisplay();
+    },
+
+    handleSign() {
+        if (this.currentValue !== '0' && this.currentValue !== 'Error') {
+            this.currentValue = (-parseFloat(this.currentValue)).toString();
+            this.updateDisplay();
+        }
+    },
+
+    handlePercent() {
+        if (this.currentValue !== 'Error') {
+            this.currentValue = (parseFloat(this.currentValue) / 100).toString();
+            this.updateDisplay();
+        }
+    },
+
+    handleSquare() {
+        if (this.currentValue !== 'Error') {
+            const num = parseFloat(this.currentValue);
+            const result = num * num;
+            this.history.push(`sqr(${this.currentValue}) = ${result}`);
+            this.currentValue = result.toString();
+            this.updateDisplay();
+        }
+    },
+
+    handleSquareRoot() {
+        if (this.currentValue !== 'Error') {
+            const num = parseFloat(this.currentValue);
+            if (num < 0) {
+                this.currentValue = 'Error';
+            } else {
+                const result = Math.sqrt(num);
+                this.history.push(`√(${this.currentValue}) = ${result}`);
+                this.currentValue = result.toString();
+            }
+            this.updateDisplay();
+        }
+    },
+
+    handleReciprocal() {
+        if (this.currentValue !== 'Error' && this.currentValue !== '0') {
+            const num = parseFloat(this.currentValue);
+            const result = 1 / num;
+            this.history.push(`1/(${this.currentValue}) = ${result}`);
+            this.currentValue = result.toString();
+            this.updateDisplay();
+        } else if (this.currentValue === '0') {
+            this.currentValue = 'Error';
+            this.updateDisplay();
+        }
+    },
 
     calculate() {
-        if (!this.operation || !this.previousInput) return;
+        if (!this.operator || !this.previousValue) return;
 
-        const prev = parseFloat(this.previousInput);
-        const current = parseFloat(this.currentInput);
+        const prev = parseFloat(this.previousValue);
+        const current = parseFloat(this.currentValue);
         let result;
 
-        switch (this.operation) {
-            case 'add':
+        switch (this.operator) {
+            case '+':
                 result = prev + current;
                 break;
-            case 'subtract':
+            case '−':
                 result = prev - current;
                 break;
-            case 'multiply':
+            case '×':
                 result = prev * current;
                 break;
-            case 'divide':
+            case '÷':
                 if (current === 0) {
-                    this.currentInput = 'Error';
+                    this.currentValue = 'Error';
                     this.updateDisplay();
                     return;
                 }
@@ -114,41 +140,31 @@ class Calculator {
                 return;
         }
 
-        // Add to history
-        const calculation = `${prev} ${this.getOperationSymbol(this.operation)} ${current} = ${result}`;
-        this.calculationHistory.push(calculation);
-        
-        this.currentInput = result.toString();
-        this.operation = null;
-        this.previousInput = '';
-        this.shouldResetDisplay = true;
-        
-        this.updateDisplay();
-        this.updateHistory();
-    }
+        // Format the result
+        result = Math.round(result * 1000000) / 1000000;
 
-    getOperationSymbol(op) {
-        switch (op) {
-            case 'add': return '+';
-            case 'subtract': return '−';
-            case 'multiply': return '×';
-            case 'divide': return '÷';
-            default: return '';
-        }
-    }
+        // Add to history
+        const calculation = `${prev} ${this.operator} ${current} = ${result}`;
+        this.history.push(calculation);
+
+        this.currentValue = result.toString();
+        this.operator = null;
+        this.previousValue = '';
+        this.shouldResetDisplay = true;
+        this.updateDisplay();
+    },
 
     clear() {
-        this.currentInput = '0';
-        this.previousInput = '';
-        this.operation = null;
+        this.currentValue = '0';
+        this.previousValue = '';
+        this.operator = null;
         this.shouldResetDisplay = false;
-        this.calculationHistory = [];
+        this.history = [];
         this.updateDisplay();
-        this.updateHistory();
     }
-}
+};
 
 // Initialize calculator when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new Calculator();
+    calculator.initialize();
 }); 

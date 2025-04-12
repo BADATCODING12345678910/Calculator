@@ -4,296 +4,260 @@ class InDepthTests {
         this.totalTests = 0;
         this.passedTests = 0;
         this.failedTests = [];
-        this.calculator = window.calculatorInstance;
-        this.calculator.debug = true; // Enable debug mode for testing
     }
 
-    assertEquals(expected, actual, testName) {
+    assert(condition, message) {
         this.totalTests++;
-        if (expected === actual) {
+        if (condition) {
             this.passedTests++;
-            console.log(`✓ PASS: ${testName}`);
-            return true;
+            console.log(`✓ Test passed: ${message}`);
         } else {
-            this.failedTests.push(`${testName}: Expected ${expected}, but got ${actual}`);
-            console.log(`✗ FAIL: ${testName}`);
-            return false;
+            this.failedTests.push(message);
+            console.error(`✗ Test failed: ${message}`);
         }
     }
 
-    assertClose(expected, actual, tolerance, testName) {
-        this.totalTests++;
-        if (Math.abs(expected - actual) <= tolerance) {
-            this.passedTests++;
-            console.log(`✓ PASS: ${testName}`);
-            return true;
-        } else {
-            this.failedTests.push(`${testName}: Expected ~${expected}, but got ${actual}`);
-            console.log(`✗ FAIL: ${testName}`);
-            return false;
-        }
+    setUp() {
+        calculator.clear();
     }
 
-    assertThrows(func, errorMessage, testName) {
-        this.totalTests++;
-        try {
-            func();
-            this.failedTests.push(`${testName}: Expected to throw error`);
-            console.log(`✗ FAIL: ${testName}`);
-            return false;
-        } catch (e) {
-            if (e.message === errorMessage) {
-                this.passedTests++;
-                console.log(`✓ PASS: ${testName}`);
-                return true;
-            } else {
-                this.failedTests.push(`${testName}: Expected "${errorMessage}", but got "${e.message}"`);
-                console.log(`✗ FAIL: ${testName}`);
-                return false;
-            }
-        }
+    // Test basic number input and display
+    testNumberInput() {
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('2');
+        calculator.handleNumber('3');
+        this.assert(calculator.currentValue === '123', 'Number input sequence');
+        
+        this.setUp();
+        calculator.handleNumber('0');
+        calculator.handleNumber('5');
+        this.assert(calculator.currentValue === '5', 'Leading zero handling');
     }
 
-    runAllTests() {
-        console.log('Starting In-Depth Tests...');
+    // Test decimal handling
+    testDecimal() {
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleDecimal();
+        calculator.handleNumber('5');
+        this.assert(calculator.currentValue === '1.5', 'Decimal point handling');
         
-        // Basic Calculator Tests
-        this.testBasicOperations();
-        this.testSpecialFunctions();
-        this.testMemoryOperations();
-        this.testDisplayFormatting();
-        this.testErrorHandling();
-        this.testKeyboardInput();
-        this.testHistoryFunctionality();
-        
-        // Notes Tests
-        this.testNotesStorage();
-        this.testNotesOperations();
-        this.testNotesUI();
-        
-        // Display Results
-        this.displayResults();
+        calculator.handleDecimal();
+        this.assert(calculator.currentValue === '1.5', 'Multiple decimal prevention');
     }
 
+    // Test basic operations
     testBasicOperations() {
-        console.log('\nTesting Basic Operations:');
-        
         // Addition
-        let result = this.calculator.calculate('5', '+', '3');
-        this.assertEquals(8, result, 'Addition: 5 + 3');
-        
+        this.setUp();
+        calculator.handleNumber('5');
+        calculator.handleOperator('+');
+        calculator.handleNumber('3');
+        calculator.calculate();
+        this.assert(calculator.currentValue === '8', 'Basic addition');
+
         // Subtraction
-        result = this.calculator.calculate('10', '−', '4');
-        this.assertEquals(6, result, 'Subtraction: 10 - 4');
-        
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('0');
+        calculator.handleOperator('−');
+        calculator.handleNumber('4');
+        calculator.calculate();
+        this.assert(calculator.currentValue === '6', 'Basic subtraction');
+
         // Multiplication
-        result = this.calculator.calculate('6', '×', '7');
-        this.assertEquals(42, result, 'Multiplication: 6 × 7');
-        
+        this.setUp();
+        calculator.handleNumber('6');
+        calculator.handleOperator('×');
+        calculator.handleNumber('7');
+        calculator.calculate();
+        this.assert(calculator.currentValue === '42', 'Basic multiplication');
+
         // Division
-        result = this.calculator.calculate('15', '÷', '3');
-        this.assertEquals(5, result, 'Division: 15 ÷ 3');
-        
-        // Division with decimal result
-        result = this.calculator.calculate('10', '÷', '3');
-        this.assertClose(3.33333333, result, 0.00000001, 'Division with decimal: 10 ÷ 3');
+        this.setUp();
+        calculator.handleNumber('2');
+        calculator.handleNumber('0');
+        calculator.handleOperator('÷');
+        calculator.handleNumber('5');
+        calculator.calculate();
+        this.assert(calculator.currentValue === '4', 'Basic division');
     }
 
+    // Test special functions
     testSpecialFunctions() {
-        console.log('\nTesting Special Functions:');
-        
         // Square
-        let result = this.calculator.calculateSpecial('5', 'x²');
-        this.assertEquals(25, result, 'Square: 5²');
-        
-        // Square Root
-        result = this.calculator.calculateSpecial('16', '√x');
-        this.assertEquals(4, result, 'Square Root: √16');
-        
+        this.setUp();
+        calculator.handleNumber('4');
+        calculator.handleSquare();
+        this.assert(calculator.currentValue === '16', 'Square function');
+
+        // Square root
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('6');
+        calculator.handleSquareRoot();
+        this.assert(calculator.currentValue === '4', 'Square root function');
+
         // Reciprocal
-        result = this.calculator.calculateSpecial('4', '¹/x');
-        this.assertEquals(0.25, result, 'Reciprocal: 1/4');
-        
+        this.setUp();
+        calculator.handleNumber('4');
+        calculator.handleReciprocal();
+        this.assert(calculator.currentValue === '0.25', 'Reciprocal function');
+
         // Percentage
-        result = this.calculator.calculateSpecial('50', '%');
-        this.assertEquals(0.5, result, 'Percentage: 50%');
-        
-        // Sign Change
-        result = this.calculator.calculateSpecial('25', '±');
-        this.assertEquals(-25, result, 'Sign Change: ±25');
+        this.setUp();
+        calculator.handleNumber('5');
+        calculator.handleNumber('0');
+        calculator.handlePercent();
+        this.assert(calculator.currentValue === '0.5', 'Percentage function');
+
+        // Sign change
+        this.setUp();
+        calculator.handleNumber('5');
+        calculator.handleSign();
+        this.assert(calculator.currentValue === '-5', 'Sign change function');
     }
 
-    testMemoryOperations() {
-        console.log('\nTesting Memory Operations:');
-        
-        // Memory Store
-        this.calculator.memoryStore('100');
-        this.assertEquals(100, this.calculator.memoryRecall(), 'Memory Store: 100');
-        
-        // Memory Add
-        this.calculator.memoryAdd('50');
-        this.assertEquals(150, this.calculator.memoryRecall(), 'Memory Add: +50');
-        
-        // Memory Subtract
-        this.calculator.memorySubtract('30');
-        this.assertEquals(120, this.calculator.memoryRecall(), 'Memory Subtract: -30');
-        
-        // Memory Clear
-        this.calculator.memoryClear();
-        this.assertEquals(0, this.calculator.memoryRecall(), 'Memory Clear');
-    }
-
-    testDisplayFormatting() {
-        console.log('\nTesting Display Formatting:');
-        
-        // Large Numbers
-        this.assertEquals('1,234,567', this.calculator.formatNumber(1234567), 'Format Large Number');
-        
-        // Decimal Numbers
-        this.assertEquals('1,234.56', this.calculator.formatNumber(1234.56), 'Format Decimal');
-        
-        // Scientific Notation
-        this.assertEquals('1.23e+6', this.calculator.formatNumber(1230000), 'Format Scientific');
-        
-        // Small Decimal
-        this.assertEquals('0.000123', this.calculator.formatNumber(0.000123), 'Format Small Decimal');
-    }
-
+    // Test error handling
     testErrorHandling() {
-        console.log('\nTesting Error Handling:');
-        
-        // Division by Zero
-        this.assertThrows(
-            () => this.calculator.calculate('10', '÷', '0'),
-            'Division by zero',
-            'Division by Zero Error'
-        );
-        
-        // Invalid Square Root
-        this.assertThrows(
-            () => this.calculator.calculateSpecial('-16', '√x'),
-            'Invalid input for square root',
-            'Negative Square Root Error'
-        );
-        
-        // Invalid Operation
-        this.assertThrows(
-            () => this.calculator.calculate('10', 'invalid', '5'),
-            'Invalid operation',
-            'Invalid Operation Error'
-        );
+        // Division by zero
+        this.setUp();
+        calculator.handleNumber('5');
+        calculator.handleOperator('÷');
+        calculator.handleNumber('0');
+        calculator.calculate();
+        this.assert(calculator.currentValue === 'Error', 'Division by zero error');
+
+        // Square root of negative
+        this.setUp();
+        calculator.handleNumber('9');
+        calculator.handleSign();
+        calculator.handleSquareRoot();
+        this.assert(calculator.currentValue === 'Error', 'Square root of negative error');
+
+        // Reciprocal of zero
+        this.setUp();
+        calculator.handleNumber('0');
+        calculator.handleReciprocal();
+        this.assert(calculator.currentValue === 'Error', 'Reciprocal of zero error');
     }
 
-    testKeyboardInput() {
-        console.log('\nTesting Keyboard Input:');
-        
-        // Test number input
-        this.calculator.handleNumber('5');
-        this.assertEquals('5', this.calculator.currentInput, 'Number Input: 5');
-        
-        // Test decimal point
-        this.calculator.handleNumber('.');
-        this.assertEquals('5.', this.calculator.currentInput, 'Decimal Point Input');
-        
-        // Test operation
-        this.calculator.handleOperation('+');
-        this.assertEquals('+', this.calculator.operation, 'Operation Input: +');
-        
-        // Test equals
-        this.calculator.currentInput = '3';
-        this.calculator.handleEquals();
-        this.assertEquals('8', this.calculator.currentInput, 'Equals Operation');
+    // Test display formatting
+    testDisplayFormatting() {
+        // Large numbers
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('2');
+        calculator.handleNumber('3');
+        calculator.handleNumber('4');
+        calculator.handleNumber('5');
+        calculator.handleNumber('6');
+        this.assert(calculator.display.textContent === '123,456', 'Large number formatting');
+
+        // Decimal numbers
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('2');
+        calculator.handleDecimal();
+        calculator.handleNumber('3');
+        calculator.handleNumber('4');
+        this.assert(calculator.currentValue === '12.34', 'Decimal number formatting');
     }
 
-    testHistoryFunctionality() {
-        console.log('\nTesting History Functionality:');
+    // Test backspace functionality
+    testBackspace() {
+        this.setUp();
+        calculator.handleNumber('1');
+        calculator.handleNumber('2');
+        calculator.handleNumber('3');
+        calculator.handleBackspace();
+        this.assert(calculator.currentValue === '12', 'Backspace function');
         
-        // Clear history
-        this.calculator.calculationHistory = [];
-        
-        // Add calculations
-        this.calculator.calculate('5', '+', '3');
-        this.calculator.calculate('10', '×', '2');
-        
-        // Test history length
-        this.assertEquals(2, this.calculator.calculationHistory.length, 'History Length');
-        
-        // Test history content
-        const lastCalculation = this.calculator.calculationHistory[0];
-        this.assertEquals(true, lastCalculation.includes('20'), 'History Content');
+        calculator.handleBackspace();
+        calculator.handleBackspace();
+        this.assert(calculator.currentValue === '0', 'Backspace to zero');
     }
 
-    testNotesStorage() {
-        console.log('\nTesting Notes Storage:');
-        
-        // Test localStorage
-        const testNote = {
-            id: Date.now(),
-            title: 'Test Note',
-            content: 'Test Content',
-            lastModified: new Date().toISOString()
-        };
-        
-        // Save to localStorage
-        localStorage.setItem('notes', JSON.stringify([testNote]));
-        
-        // Retrieve from localStorage
-        const savedNotes = JSON.parse(localStorage.getItem('notes'));
-        this.assertEquals(testNote.title, savedNotes[0].title, 'Notes Storage: Title');
-        this.assertEquals(testNote.content, savedNotes[0].content, 'Notes Storage: Content');
+    // Test history functionality
+    testHistory() {
+        this.setUp();
+        calculator.handleNumber('5');
+        calculator.handleOperator('+');
+        calculator.handleNumber('3');
+        calculator.calculate();
+        this.assert(calculator.history.length === 1, 'History recording');
+        this.assert(calculator.history[0] === '5 + 3 = 8', 'History format');
     }
 
-    testNotesOperations() {
-        console.log('\nTesting Notes Operations:');
+    // Run all tests
+    runAllTests() {
+        console.log('Starting calculator tests...');
         
-        // Test note creation
-        const note = {
-            id: Date.now(),
-            title: 'New Note',
-            content: 'New Content',
-            lastModified: new Date().toISOString()
-        };
-        
-        // Test note update
-        note.title = 'Updated Title';
-        this.assertEquals('Updated Title', note.title, 'Note Update: Title');
-        
-        // Test note deletion
-        const notes = [note];
-        const filteredNotes = notes.filter(n => n.id !== note.id);
-        this.assertEquals(0, filteredNotes.length, 'Note Deletion');
-    }
+        try {
+            this.testNumberInput();
+            this.testDecimal();
+            this.testBasicOperations();
+            this.testSpecialFunctions();
+            this.testErrorHandling();
+            this.testDisplayFormatting();
+            this.testBackspace();
+            this.testHistory();
 
-    testNotesUI() {
-        console.log('\nTesting Notes UI:');
-        
-        // Test panel switching
-        const historyTab = document.querySelector('.panel-tab');
-        this.calculator.handlePanelTab(historyTab);
-        this.assertEquals(false, this.calculator.historyContent.classList.contains('hidden'), 'Panel Switching');
-        
-        // Test memory display
-        this.calculator.memoryValue = 100;
-        this.calculator.updateMemoryPanel();
-        const memoryContent = this.calculator.memoryContent.innerHTML;
-        this.assertEquals(true, memoryContent.includes('100'), 'Memory Display');
-    }
+            console.log('\nTest Summary:');
+            console.log(`Total tests: ${this.totalTests}`);
+            console.log(`Passed: ${this.passedTests}`);
+            console.log(`Failed: ${this.totalTests - this.passedTests}`);
+            
+            if (this.failedTests.length > 0) {
+                console.log('\nFailed Tests:');
+                this.failedTests.forEach(test => console.log(`- ${test}`));
+            }
 
-    displayResults() {
-        console.log('\nTest Results:');
-        console.log(`Total Tests: ${this.totalTests}`);
-        console.log(`Passed: ${this.passedTests}`);
-        console.log(`Failed: ${this.totalTests - this.passedTests}`);
-        
-        if (this.failedTests.length > 0) {
-            console.log('\nFailed Tests:');
-            this.failedTests.forEach(failure => console.log(`- ${failure}`));
+            // Remove any existing test results
+            const existingResults = document.querySelector('.test-results');
+            if (existingResults) {
+                existingResults.remove();
+            }
+
+            // Create a visual display of test results on the page
+            const testResults = document.createElement('div');
+            testResults.className = 'test-results';
+            testResults.style.position = 'fixed';
+            testResults.style.top = '10px';
+            testResults.style.right = '10px';
+            testResults.style.background = this.failedTests.length > 0 ? 'rgba(255, 0, 0, 0.9)' : 'rgba(0, 128, 0, 0.9)';
+            testResults.style.padding = '15px';
+            testResults.style.borderRadius = '5px';
+            testResults.style.color = 'white';
+            testResults.style.fontFamily = 'monospace';
+            testResults.style.zIndex = '1000';
+            testResults.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            testResults.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 10px;">Test Results</div>
+                Total: ${this.totalTests}<br>
+                Passed: ${this.passedTests}<br>
+                Failed: ${this.totalTests - this.passedTests}
+                ${this.failedTests.length > 0 ? 
+                    `<div style="margin-top: 10px; color: #ff9999;">Failed Tests:<br>` + 
+                    this.failedTests.map(test => `- ${test}`).join('<br>') + 
+                    '</div>' : 
+                    '<div style="margin-top: 10px; color: #99ff99;">All tests passed! ✓</div>'}
+            `;
+            document.body.appendChild(testResults);
+            
+            // Remove the test results after 10 seconds
+            setTimeout(() => {
+                testResults.style.transition = 'opacity 0.5s';
+                testResults.style.opacity = '0';
+                setTimeout(() => testResults.remove(), 500);
+            }, 10000);
+
+        } catch (error) {
+            console.error('Test execution failed:', error);
+            alert('Test execution failed. Check console for details.');
         }
     }
 }
 
-// Run tests when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const tests = new InDepthTests();
-    tests.runAllTests();
-}); 
+// Remove auto-run on load since we have a button now 
