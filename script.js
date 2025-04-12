@@ -374,5 +374,21 @@ class Calculator {
 
 // Initialize calculator
 document.addEventListener('DOMContentLoaded', () => {
+    // Reset all calculator state variables
+    currentValue = '0';
+    previousValue = '';
+    operation = null;
+    shouldResetScreen = false;
+    memoryValue = 0;
+    history = [];
+    
+    // Update displays
+    updateDisplay();
+    updateHistory();
+    updateMemoryDisplay();
+    
+    // Initialize calculator
     const calculator = new Calculator();
+    calculator.initializeEventListeners();
+    calculator.initializeDisplay();
 }); 
