@@ -11,11 +11,12 @@ class Calculator {
         this.shouldResetDisplay = false;
         this.memoryValue = 0;
         this.calculationHistory = [];
+        this.maxDisplayLength = 16;
 
-        this.debug = false; // Debug mode flag
+        this.debug = false;
         this.initializeEventListeners();
+        this.initializeDisplay();
         
-        // Make calculator instance available globally for testing
         window.calculatorInstance = this;
     }
 
@@ -26,9 +27,21 @@ class Calculator {
         }
     }
 
+    // Initialize display
+    initializeDisplay() {
+        this.updateDisplay('0');
+        this.updateHistory('');
+        this.updateHistoryPanel();
+        this.updateMemoryPanel();
+    }
+
     // Helper function to update display
     updateDisplay(value) {
-        this.result.textContent = value;
+        // Handle overflow
+        if (value.toString().length > this.maxDisplayLength) {
+            value = parseFloat(value).toExponential(8);
+        }
+        this.result.textContent = this.formatNumber(value);
         this.log('Display updated', value);
     }
 
@@ -42,9 +55,22 @@ class Calculator {
     formatNumber(num) {
         this.log('Formatting number', num);
         const str = num.toString();
-        if (str.includes('e')) return str;
+        
+        // Handle scientific notation
+        if (str.includes('e')) {
+            const [base, exponent] = str.split('e');
+            return `${this.formatNumber(base)}e${exponent}`;
+        }
+
+        // Handle decimal numbers
         const parts = str.split('.');
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        
+        // Limit decimal places
+        if (parts[1]) {
+            parts[1] = parts[1].slice(0, 8);
+        }
+        
         return parts.join('.');
     }
 
@@ -67,6 +93,8 @@ class Calculator {
             default: throw new Error('Invalid operation');
         }
 
+        // Handle precision issues
+        result = parseFloat(result.toFixed(8));
         this.log('Calculation result', result);
         return result;
     }
@@ -95,10 +123,27 @@ class Calculator {
             case '%':
                 result = num / 100;
                 break;
+            case 'C':
+                result = 0;
+                this.previousInput = '';
+                this.operation = null;
+                break;
+            case 'CE':
+                result = 0;
+                break;
+            case '⌫':
+                if (this.currentInput.length > 1) {
+                    result = parseFloat(this.currentInput.slice(0, -1));
+                } else {
+                    result = 0;
+                }
+                break;
             default:
                 throw new Error('Invalid special operation');
         }
 
+        // Handle precision issues
+        result = parseFloat(result.toFixed(8));
         this.log('Special calculation result', result);
         return result;
     }
@@ -116,13 +161,13 @@ class Calculator {
     }
 
     memoryAdd(value) {
-        this.memoryValue += parseFloat(value);
+        this.memoryValue = parseFloat((this.memoryValue + parseFloat(value)).toFixed(8));
         this.updateMemoryPanel();
         this.log('Memory added', value);
     }
 
     memorySubtract(value) {
-        this.memoryValue -= parseFloat(value);
+        this.memoryValue = parseFloat((this.memoryValue - parseFloat(value)).toFixed(8));
         this.updateMemoryPanel();
         this.log('Memory subtracted', value);
     }
@@ -207,16 +252,24 @@ class Calculator {
     // Event Handlers
     handleNumber(number) {
         this.log('Number pressed', number);
+        
+        // Handle decimal point
+        if (number === '.' && this.currentInput.includes('.')) {
+            return;
+        }
+
         if (this.shouldResetDisplay) {
             this.currentInput = '';
             this.shouldResetDisplay = false;
         }
+
         if (this.currentInput === '0' && number !== '.') {
             this.currentInput = number;
-        } else if (this.currentInput.length < 16) {
+        } else if (this.currentInput.length < this.maxDisplayLength) {
             this.currentInput += number;
         }
-        this.updateDisplay(this.formatNumber(this.currentInput));
+
+        this.updateDisplay(this.currentInput);
     }
 
     handleOperation(op) {
@@ -238,7 +291,7 @@ class Calculator {
         try {
             const result = this.calculateSpecial(this.currentInput, func);
             this.currentInput = result.toString();
-            this.updateDisplay(this.formatNumber(this.currentInput));
+            this.updateDisplay(this.currentInput);
         } catch (e) {
             alert(e.message);
         }
@@ -251,14 +304,14 @@ class Calculator {
         try {
             const result = this.calculate(this.previousInput, this.operation, this.currentInput);
             const calculation = `${this.formatNumber(this.previousInput)} ${this.operation} ${this.formatNumber(this.currentInput)} = ${this.formatNumber(result)}`;
-            this.calculationHistory.push(calculation);
+            this.calculationHistory.unshift(calculation);
             this.updateHistoryPanel();
 
             this.currentInput = result.toString();
             this.previousInput = '';
             this.operation = null;
             this.shouldResetDisplay = true;
-            this.updateDisplay(this.formatNumber(this.currentInput));
+            this.updateDisplay(this.currentInput);
             this.updateHistory('');
         } catch (e) {
             alert(e.message);
@@ -267,15 +320,19 @@ class Calculator {
 
     handleMemory(action) {
         this.log('Memory action', action);
-        switch (action) {
-            case 'mc': this.memoryClear(); break;
-            case 'mr': 
-                this.currentInput = this.memoryRecall().toString();
-                this.updateDisplay(this.formatNumber(this.currentInput));
-                break;
-            case 'm-plus': this.memoryAdd(this.currentInput); break;
-            case 'm-minus': this.memorySubtract(this.currentInput); break;
-            case 'ms': this.memoryStore(this.currentInput); break;
+        try {
+            switch (action) {
+                case 'mc': this.memoryClear(); break;
+                case 'mr': 
+                    this.currentInput = this.memoryRecall().toString();
+                    this.updateDisplay(this.currentInput);
+                    break;
+                case 'm-plus': this.memoryAdd(this.currentInput); break;
+                case 'm-minus': this.memorySubtract(this.currentInput); break;
+                case 'ms': this.memoryStore(this.currentInput); break;
+            }
+        } catch (e) {
+            alert(e.message);
         }
     }
 
