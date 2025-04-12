@@ -11,7 +11,7 @@
     <meta property="og:image" content="icon.svg">
     <meta property="og:url" content="https://BADATCODING12345678910.github.io/quickalc">
     <base href="/quickalc/">
-    <title>QuickCalc</title>
+    <title>Calculator</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -21,83 +21,34 @@
 </head>
 <body>
     <div class="calculator">
-        <div class="title-bar">
-            <div class="title-left">
-                <button class="menu-button">☰</button>
-                <span class="calc-icon">🧮</span>
-                <span>Calculator</span>
-            </div>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link active">Calculator</a>
-                <a href="notes.html" class="nav-link">Notes</a>
-            </div>
-            <div class="mode">
-                <span class="current-mode">Standard</span>
-                <button class="history-toggle">📑</button>
-            </div>
-            <div class="window-controls">
-                <button class="minimize">−</button>
-                <button class="maximize">□</button>
-                <button class="close">×</button>
-            </div>
+        <div class="display">
+            <div class="history"></div>
+            <div class="current">0</div>
         </div>
-        
-        <div class="main-container">
-            <div class="calc-content">
-                <div class="display-container">
-                    <div class="history"></div>
-                    <div class="current">0</div>
-                </div>
+        <div class="buttons">
+            <button class="function" data-action="percent">%</button>
+            <button class="function" data-action="clear">C</button>
+            <button class="function" data-action="sign">±</button>
+            <button class="operator" data-action="divide">÷</button>
 
-                <div class="memory-row">
-                    <button class="memory" id="mc">MC</button>
-                    <button class="memory" id="mr">MR</button>
-                    <button class="memory" id="m-plus">M+</button>
-                    <button class="memory" id="m-minus">M−</button>
-                    <button class="memory" id="ms">MS</button>
-                </div>
+            <button class="number" data-action="7">7</button>
+            <button class="number" data-action="8">8</button>
+            <button class="number" data-action="9">9</button>
+            <button class="operator" data-action="multiply">×</button>
 
-                <div class="buttons">
-                    <button class="function" data-action="percent">%</button>
-                    <button class="function" data-action="clear">C</button>
-                    <button class="function" data-action="sign">±</button>
-                    <button class="operator" data-action="divide">÷</button>
+            <button class="number" data-action="4">4</button>
+            <button class="number" data-action="5">5</button>
+            <button class="number" data-action="6">6</button>
+            <button class="operator" data-action="subtract">−</button>
 
-                    <button class="number" data-action="7">7</button>
-                    <button class="number" data-action="8">8</button>
-                    <button class="number" data-action="9">9</button>
-                    <button class="operator" data-action="multiply">×</button>
+            <button class="number" data-action="1">1</button>
+            <button class="number" data-action="2">2</button>
+            <button class="number" data-action="3">3</button>
+            <button class="operator" data-action="add">+</button>
 
-                    <button class="number" data-action="4">4</button>
-                    <button class="number" data-action="5">5</button>
-                    <button class="number" data-action="6">6</button>
-                    <button class="operator" data-action="subtract">−</button>
-
-                    <button class="number" data-action="1">1</button>
-                    <button class="number" data-action="2">2</button>
-                    <button class="number" data-action="3">3</button>
-                    <button class="operator" data-action="add">+</button>
-
-                    <button class="number zero" data-action="0">0</button>
-                    <button class="number" data-action="decimal">.</button>
-                    <button class="operator" data-action="equals">=</button>
-                </div>
-            </div>
-
-            <div class="side-panel">
-                <div class="panel-header">
-                    <button class="panel-tab active">History</button>
-                    <button class="panel-tab">Memory</button>
-                </div>
-                <div class="panel-content">
-                    <div class="history-content">
-                        <p class="no-history">There's no history yet.</p>
-                    </div>
-                    <div class="memory-content hidden">
-                        <p class="no-memory">There's nothing saved in memory.</p>
-                    </div>
-                </div>
-            </div>
+            <button class="number zero" data-action="0">0</button>
+            <button class="number" data-action="decimal">.</button>
+            <button class="operator" data-action="equals">=</button>
         </div>
     </div>
     <script src="script.js"></script>
