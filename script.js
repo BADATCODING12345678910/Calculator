@@ -1,10 +1,12 @@
 class Calculator {
     constructor() {
-        this.result = document.querySelector('.result');
+        // DOM elements
+        this.result = document.querySelector('.current');
         this.history = document.querySelector('.history');
         this.historyContent = document.querySelector('.history-content');
         this.memoryContent = document.querySelector('.memory-content');
         
+        // Initialize state
         this.currentInput = '0';
         this.previousInput = '';
         this.operation = null;
@@ -12,12 +14,14 @@ class Calculator {
         this.memoryValue = 0;
         this.calculationHistory = [];
         this.maxDisplayLength = 16;
-
         this.debug = false;
-        this.initializeEventListeners();
-        this.initializeDisplay();
-        
+
+        // Store instance globally for debugging
         window.calculatorInstance = this;
+        
+        // Initialize the calculator
+        this.initializeDisplay();
+        this.initializeEventListeners();
     }
 
     // Debug logging
@@ -374,21 +378,18 @@ class Calculator {
 
 // Initialize calculator
 document.addEventListener('DOMContentLoaded', () => {
-    // Reset all calculator state variables
-    currentValue = '0';
-    previousValue = '';
-    operation = null;
-    shouldResetScreen = false;
-    memoryValue = 0;
-    history = [];
-    
-    // Update displays
-    updateDisplay();
-    updateHistory();
-    updateMemoryDisplay();
-    
-    // Initialize calculator
+    // Create new calculator instance
     const calculator = new Calculator();
-    calculator.initializeEventListeners();
+    
+    // Reset calculator state
+    calculator.currentInput = '0';
+    calculator.previousInput = '';
+    calculator.operation = null;
+    calculator.shouldResetDisplay = false;
+    calculator.memoryValue = 0;
+    calculator.calculationHistory = [];
+    
+    // Initialize display
     calculator.initializeDisplay();
+    calculator.initializeEventListeners();
 }); 
