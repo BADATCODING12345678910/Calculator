@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 body {
@@ -10,37 +10,67 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: #f0f2f5;
+    background: #1a1a1a;
+    color: #ffffff;
 }
 
 .calculator {
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background: #202020;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     padding: 20px;
     width: 320px;
 }
 
-.display {
+.display-container {
     margin-bottom: 20px;
+}
+
+.memory-indicators {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+    min-height: 20px;
+}
+
+.memory-indicators span {
+    color: #666;
+    font-size: 14px;
+}
+
+.memory-indicators span.hidden {
+    visibility: hidden;
+}
+
+.display {
+    background: #1a1a1a;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.history {
+    color: #666;
+    font-size: 14px;
+    min-height: 20px;
+    text-align: right;
+    margin-bottom: 5px;
 }
 
 #display {
     width: 100%;
-    height: 60px;
+    height: 40px;
     border: none;
-    background: #f8f9fa;
-    border-radius: 10px;
+    background: transparent;
     text-align: right;
-    padding: 0 20px;
-    font-size: 24px;
-    color: #333;
+    padding: 0 5px;
+    font-size: 32px;
+    color: #ffffff;
 }
 
 .buttons {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 8px;
 }
 
 button {
@@ -48,48 +78,59 @@ button {
     outline: none;
     padding: 15px;
     font-size: 18px;
-    border-radius: 10px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
+    color: #ffffff;
 }
 
 .number {
-    background: #f8f9fa;
-    color: #333;
+    background: #2d2d2d;
 }
 
 .number:hover {
-    background: #e9ecef;
+    background: #3d3d3d;
 }
 
 .operator {
-    background: #e7f5ff;
-    color: #228be6;
+    background: #323232;
 }
 
 .operator:hover {
-    background: #d0ebff;
+    background: #424242;
 }
 
 .equals {
-    background: #228be6;
-    color: white;
-    grid-column: span 2;
+    background: #0078d4;
 }
 
 .equals:hover {
-    background: #1c7ed6;
+    background: #1084e0;
 }
 
 .clear {
-    background: #ffe3e3;
-    color: #fa5252;
+    background: #323232;
+    color: #ff4444;
 }
 
 .clear:hover {
-    background: #ffc9c9;
+    background: #424242;
+}
+
+.memory {
+    background: #2d2d2d;
+    font-size: 14px;
+    padding: 10px;
+}
+
+.memory:hover {
+    background: #3d3d3d;
 }
 
 .zero {
     grid-column: span 2;
+}
+
+button:active {
+    transform: scale(0.95);
 } 
