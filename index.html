@@ -249,7 +249,7 @@
                     <a href="index.html" class="nav-link active">Calculator</a>
                     <a href="notes.html" class="nav-link">Notes</a>
                 </div>
-                <button class="test-button" onclick="runTests()">Run Tests</button>
+                <button class="test-button" id="testButton">Run Tests</button>
             </div>
             <div class="display">
                 <div class="current">0</div>
@@ -300,11 +300,17 @@
     </div>
     <script src="script.js"></script>
     <script src="in_depth_tests.js"></script>
+    <script src="enhanced_tests.js"></script>
     <script>
         function runTests() {
             const tests = new InDepthTests();
             tests.runAllTests();
         }
+
+        document.getElementById('testButton').addEventListener('click', function() {
+            const enhancedTests = new EnhancedTests();
+            enhancedTests.runEnhancedTests();
+        });
     </script>
 </body>
 </html> 
