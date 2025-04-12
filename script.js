@@ -6,7 +6,7 @@ const calculator = {
     history: [],
 
     display: document.querySelector('.current'),
-    historyDisplay: document.querySelector('.history'),
+    historyDisplay: document.querySelector('.history-list'),
 
     initialize() {
         this.updateDisplay();
@@ -23,7 +23,11 @@ const calculator = {
             }
         }
         this.display.textContent = displayValue;
-        this.historyDisplay.innerHTML = this.history.join('<br>');
+        
+        // Update history with proper formatting
+        this.historyDisplay.innerHTML = this.history.map(item => 
+            `<div class="history-item">${item}</div>`
+        ).reverse().join('');
     },
 
     handleNumber(num) {

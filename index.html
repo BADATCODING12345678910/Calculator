@@ -28,27 +28,64 @@
             min-height: 100vh;
             background: #202020;
             color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .calculator {
+            flex: 0 0 500px;
             background: #202020;
-            width: 356px;
-            border-radius: 8px;
-            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .history-panel {
+            flex: 1;
+            background: #1a1a1a;
+            padding: 20px;
+            border-left: 1px solid #333;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #fff;
+            font-weight: 400;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
         }
 
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
+            padding: 16px 20px;
             background: #1e1e1e;
             border-bottom: 1px solid #333;
         }
 
         .header-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 400;
             color: #fff;
         }
@@ -61,8 +98,8 @@
         .nav-link {
             color: #fff;
             text-decoration: none;
-            font-size: 14px;
-            padding: 4px 8px;
+            font-size: 15px;
+            padding: 6px 12px;
             border-radius: 4px;
             transition: background-color 0.2s;
         }
@@ -79,9 +116,9 @@
             background: #0078d4;
             border: none;
             color: white;
-            padding: 4px 12px;
+            padding: 6px 14px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 14px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
@@ -91,20 +128,17 @@
         }
 
         .display {
-            padding: 20px;
+            padding: 30px;
             text-align: right;
             background: #1e1e1e;
-        }
-
-        .history {
-            min-height: 24px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 8px;
+            flex-grow: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
         .current {
-            font-size: 44px;
+            font-size: 52px;
             font-weight: 300;
             color: #fff;
             word-break: break-all;
@@ -123,8 +157,8 @@
             background: rgba(255, 255, 255, 0.05);
             border: none;
             color: rgba(255, 255, 255, 0.6);
-            padding: 8px 0;
-            font-size: 13px;
+            padding: 12px 0;
+            font-size: 14px;
             cursor: pointer;
             transition: background-color 0.2s;
         }
@@ -139,12 +173,13 @@
             gap: 1px;
             padding: 1px;
             background: #1e1e1e;
+            flex-grow: 1;
         }
 
         button {
             border: none;
-            padding: 20px 0;
-            font-size: 16px;
+            padding: min(5vh, 32px) 0;
+            font-size: 20px;
             cursor: pointer;
             transition: background-color 0.2s;
             background: #323232;
@@ -161,7 +196,7 @@
 
         .special {
             background: #2b2b2b;
-            font-size: 15px;
+            font-size: 18px;
         }
 
         .special:hover {
@@ -170,7 +205,7 @@
 
         .operator {
             background: #2b2b2b;
-            font-size: 18px;
+            font-size: 22px;
         }
 
         .operator:hover {
@@ -188,6 +223,24 @@
         .equals:active {
             background: #006cbd;
         }
+
+        @media (max-width: 800px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .calculator {
+                flex: none;
+                width: 100%;
+                height: 70vh;
+            }
+
+            .history-panel {
+                height: 30vh;
+                border-left: none;
+                border-top: 1px solid #333;
+            }
+        }
     </style>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -196,56 +249,61 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
-    <div class="calculator">
-        <div class="header">
-            <span class="header-title">Standard</span>
-            <div class="nav-links">
-                <a href="index.html" class="nav-link active">Calculator</a>
-                <a href="notes.html" class="nav-link">Notes</a>
+    <div class="app-container">
+        <div class="calculator">
+            <div class="header">
+                <span class="header-title">Standard</span>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link active">Calculator</a>
+                    <a href="notes.html" class="nav-link">Notes</a>
+                </div>
+                <button class="test-button" onclick="runTests()">Run Tests</button>
             </div>
-            <button class="test-button" onclick="runTests()">Run Tests</button>
+            <div class="display">
+                <div class="current">0</div>
+            </div>
+            <div class="memory-row">
+                <button class="memory-btn" onclick="calculator.memoryClear()">MC</button>
+                <button class="memory-btn" onclick="calculator.memoryRecall()">MR</button>
+                <button class="memory-btn" onclick="calculator.memoryAdd()">M+</button>
+                <button class="memory-btn" onclick="calculator.memorySubtract()">M-</button>
+                <button class="memory-btn" onclick="calculator.memoryStore()">MS</button>
+            </div>
+            <div class="buttons">
+                <button class="special" onclick="calculator.handlePercent()">%</button>
+                <button class="special" onclick="calculator.clearEntry()">CE</button>
+                <button class="special" onclick="calculator.clear()">C</button>
+                <button class="special" onclick="calculator.handleBackspace()">⌫</button>
+
+                <button class="special" onclick="calculator.handleReciprocal()">¹/x</button>
+                <button class="special" onclick="calculator.handleSquare()">x²</button>
+                <button class="special" onclick="calculator.handleSquareRoot()">√x</button>
+                <button class="operator" onclick="calculator.handleOperator('÷')">÷</button>
+
+                <button onclick="calculator.handleNumber('7')">7</button>
+                <button onclick="calculator.handleNumber('8')">8</button>
+                <button onclick="calculator.handleNumber('9')">9</button>
+                <button class="operator" onclick="calculator.handleOperator('×')">×</button>
+
+                <button onclick="calculator.handleNumber('4')">4</button>
+                <button onclick="calculator.handleNumber('5')">5</button>
+                <button onclick="calculator.handleNumber('6')">6</button>
+                <button class="operator" onclick="calculator.handleOperator('−')">−</button>
+
+                <button onclick="calculator.handleNumber('1')">1</button>
+                <button onclick="calculator.handleNumber('2')">2</button>
+                <button onclick="calculator.handleNumber('3')">3</button>
+                <button class="operator" onclick="calculator.handleOperator('+')">+</button>
+
+                <button onclick="calculator.handleSign()">±</button>
+                <button onclick="calculator.handleNumber('0')">0</button>
+                <button onclick="calculator.handleDecimal()">.</button>
+                <button class="equals" onclick="calculator.calculate()">=</button>
+            </div>
         </div>
-        <div class="display">
-            <div class="history"></div>
-            <div class="current">0</div>
-        </div>
-        <div class="memory-row">
-            <button class="memory-btn">MC</button>
-            <button class="memory-btn">MR</button>
-            <button class="memory-btn">M+</button>
-            <button class="memory-btn">M-</button>
-            <button class="memory-btn">MS</button>
-        </div>
-        <div class="buttons">
-            <button class="special" onclick="calculator.handlePercent()">%</button>
-            <button class="special" onclick="calculator.clear()">CE</button>
-            <button class="special" onclick="calculator.clear()">C</button>
-            <button class="special" onclick="calculator.handleBackspace()">⌫</button>
-
-            <button class="special" onclick="calculator.handleReciprocal()">¹/x</button>
-            <button class="special" onclick="calculator.handleSquare()">x²</button>
-            <button class="special" onclick="calculator.handleSquareRoot()">√x</button>
-            <button class="operator" onclick="calculator.handleOperator('÷')">÷</button>
-
-            <button onclick="calculator.handleNumber('7')">7</button>
-            <button onclick="calculator.handleNumber('8')">8</button>
-            <button onclick="calculator.handleNumber('9')">9</button>
-            <button class="operator" onclick="calculator.handleOperator('×')">×</button>
-
-            <button onclick="calculator.handleNumber('4')">4</button>
-            <button onclick="calculator.handleNumber('5')">5</button>
-            <button onclick="calculator.handleNumber('6')">6</button>
-            <button class="operator" onclick="calculator.handleOperator('−')">−</button>
-
-            <button onclick="calculator.handleNumber('1')">1</button>
-            <button onclick="calculator.handleNumber('2')">2</button>
-            <button onclick="calculator.handleNumber('3')">3</button>
-            <button class="operator" onclick="calculator.handleOperator('+')">+</button>
-
-            <button onclick="calculator.handleSign()">±</button>
-            <button onclick="calculator.handleNumber('0')">0</button>
-            <button onclick="calculator.handleDecimal()">.</button>
-            <button class="equals" onclick="calculator.calculate()">=</button>
+        <div class="history-panel">
+            <h2>History</h2>
+            <div class="history-list"></div>
         </div>
     </div>
     <script src="script.js"></script>
