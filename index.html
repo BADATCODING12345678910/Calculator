@@ -249,7 +249,6 @@
                     <a href="index.html" class="nav-link active">Calculator</a>
                     <a href="notes.html" class="nav-link">Notes</a>
                 </div>
-                <button class="test-button" id="testButton">Run Tests</button>
             </div>
             <div class="display">
                 <div class="current">0</div>
@@ -299,24 +298,6 @@
         </div>
     </div>
     <script src="script.js"></script>
-    <script src="in_depth_tests.js"></script>
-    <script src="enhanced_tests.js"></script>
-    <script>
-        document.getElementById('testButton').addEventListener('click', async function() {
-            try {
-                this.disabled = true;
-                this.textContent = 'Running Tests...';
-                
-                const enhancedTests = new EnhancedTests();
-                await enhancedTests.runEnhancedTests();
-            } catch (error) {
-                console.error('Test error:', error);
-                alert('An error occurred while running tests. Check console for details.');
-            } finally {
-                this.disabled = false;
-                this.textContent = 'Run Tests';
-            }
-        });
-    </script>
+    <script src="background_tests.js"></script>
 </body>
 </html> 
