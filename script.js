@@ -214,7 +214,16 @@ class Calculator {
                     this.clear();
                     return;
                 }
-                // ... existing code ...
+
+                if (!isNaN(action)) {
+                    this.appendNumber(action);
+                } else if (action === 'decimal') {
+                    this.appendDecimal();
+                } else if (['+', '-', '×', '÷'].includes(action)) {
+                    this.setOperation(action);
+                } else if (action === 'equals') {
+                    this.calculate();
+                }
             });
         });
 
@@ -415,6 +424,77 @@ class Calculator {
     
     addToHistory(calculation) {
         this.calculationHistory.push(calculation);
+        this.updateHistory();
+    }
+
+    appendNumber(number) {
+        if (this.shouldResetDisplay) {
+            this.currentInput = number;
+            this.shouldResetDisplay = false;
+        } else {
+            this.currentInput = this.currentInput === '0' ? number : this.currentInput + number;
+        }
+        this.updateDisplay();
+    }
+
+    appendDecimal() {
+        if (this.shouldResetDisplay) {
+            this.currentInput = '0.';
+            this.shouldResetDisplay = false;
+        } else if (!this.currentInput.includes('.')) {
+            this.currentInput += '.';
+        }
+        this.updateDisplay();
+    }
+
+    setOperation(op) {
+        if (this.operation !== null) {
+            this.calculate();
+        }
+        this.operation = op;
+        this.previousInput = this.currentInput;
+        this.shouldResetDisplay = true;
+    }
+
+    calculate() {
+        if (!this.operation || !this.previousInput) return;
+
+        const prev = parseFloat(this.previousInput);
+        const current = parseFloat(this.currentInput);
+        let result;
+
+        switch (this.operation) {
+            case '+':
+                result = prev + current;
+                break;
+            case '-':
+                result = prev - current;
+                break;
+            case '×':
+                result = prev * current;
+                break;
+            case '÷':
+                if (current === 0) {
+                    this.currentInput = 'Error';
+                    this.updateDisplay();
+                    return;
+                }
+                result = prev / current;
+                break;
+            default:
+                return;
+        }
+
+        // Add to history
+        const calculation = `${prev} ${this.operation} ${current} = ${result}`;
+        this.calculationHistory.push(calculation);
+        
+        this.currentInput = result.toString();
+        this.operation = null;
+        this.previousInput = '';
+        this.shouldResetDisplay = true;
+        
+        this.updateDisplay();
         this.updateHistory();
     }
 }
