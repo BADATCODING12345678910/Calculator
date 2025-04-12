@@ -1,0 +1,27 @@
+name: Force Republish GitHub Pages
+
+on:
+  workflow_dispatch: # Allows manual trigger of the workflow
+
+jobs:
+  republish:
+    runs-on: windows-latest # Use a Windows runner
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetch all history for all branches
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Create an empty commit
+      run: |
+        git checkout gh-pages
+        git commit --allow-empty -m "Trigger GitHub Pages rebuild"
+
+    - name: Push empty commit
+      run: git push origin gh-pages
