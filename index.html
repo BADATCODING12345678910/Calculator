@@ -46,7 +46,7 @@
             <div class="calc-content">
                 <div class="display-container">
                     <div class="history"></div>
-                    <div class="result">0</div>
+                    <div class="current">0</div>
                 </div>
 
                 <div class="memory-row">
@@ -58,35 +58,29 @@
                 </div>
 
                 <div class="buttons">
-                    <button class="function">%</button>
-                    <button class="function">CE</button>
-                    <button class="function">C</button>
-                    <button class="function">⌫</button>
+                    <button class="function" data-action="percent">%</button>
+                    <button class="function" data-action="clear">C</button>
+                    <button class="function" data-action="sign">±</button>
+                    <button class="operator" data-action="divide">÷</button>
 
-                    <button class="function">¹/x</button>
-                    <button class="function">x²</button>
-                    <button class="function">√x</button>
-                    <button class="operator">÷</button>
+                    <button class="number" data-action="7">7</button>
+                    <button class="number" data-action="8">8</button>
+                    <button class="number" data-action="9">9</button>
+                    <button class="operator" data-action="multiply">×</button>
 
-                    <button class="number">7</button>
-                    <button class="number">8</button>
-                    <button class="number">9</button>
-                    <button class="operator">×</button>
+                    <button class="number" data-action="4">4</button>
+                    <button class="number" data-action="5">5</button>
+                    <button class="number" data-action="6">6</button>
+                    <button class="operator" data-action="subtract">−</button>
 
-                    <button class="number">4</button>
-                    <button class="number">5</button>
-                    <button class="number">6</button>
-                    <button class="operator">−</button>
+                    <button class="number" data-action="1">1</button>
+                    <button class="number" data-action="2">2</button>
+                    <button class="number" data-action="3">3</button>
+                    <button class="operator" data-action="add">+</button>
 
-                    <button class="number">1</button>
-                    <button class="number">2</button>
-                    <button class="number">3</button>
-                    <button class="operator">+</button>
-
-                    <button class="function">±</button>
-                    <button class="number">0</button>
-                    <button class="number">.</button>
-                    <button class="equals">=</button>
+                    <button class="number zero" data-action="0">0</button>
+                    <button class="number" data-action="decimal">.</button>
+                    <button class="operator" data-action="equals">=</button>
                 </div>
             </div>
 

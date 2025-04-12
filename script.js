@@ -1,213 +1,39 @@
 class Calculator {
     constructor() {
         // DOM elements
-        this.result = document.querySelector('.current');
+        this.display = document.querySelector('.current');
         this.history = document.querySelector('.history');
-        this.historyContent = document.querySelector('.history-content');
-        this.memoryContent = document.querySelector('.memory-content');
         
         // Initialize state
         this.currentInput = '0';
         this.previousInput = '';
         this.operation = null;
         this.shouldResetDisplay = false;
-        this.memoryValue = 0;
         this.calculationHistory = [];
-        this.maxDisplayLength = 16;
-        this.debug = false;
-
-        // Store instance globally for debugging
-        window.calculatorInstance = this;
         
         // Initialize the calculator
         this.initializeDisplay();
         this.initializeEventListeners();
     }
 
-    // Debug logging
-    log(message, data = null) {
-        if (this.debug) {
-            console.log(`[Calculator] ${message}`, data || '');
-        }
-    }
-
-    // Initialize display
     initializeDisplay() {
-        this.updateDisplay('0');
-        this.updateHistory('');
-        this.updateHistoryPanel();
-        this.updateMemoryPanel();
+        this.updateDisplay();
+        this.updateHistory();
     }
 
-    // Helper function to update display
-    updateDisplay(value) {
-        // Handle overflow
-        if (value.toString().length > this.maxDisplayLength) {
-            value = parseFloat(value).toExponential(8);
-        }
-        this.result.textContent = this.formatNumber(value);
-        this.log('Display updated', value);
+    updateDisplay() {
+        this.display.textContent = this.currentInput;
     }
 
-    // Helper function to update history
-    updateHistory(text) {
-        this.history.textContent = text;
-        this.log('History updated', text);
+    updateHistory() {
+        this.history.innerHTML = this.calculationHistory.join('<br>');
     }
 
-    // Helper function to format number
-    formatNumber(num) {
-        this.log('Formatting number', num);
-        const str = num.toString();
-        
-        // Handle scientific notation
-        if (str.includes('e')) {
-            const [base, exponent] = str.split('e');
-            return `${this.formatNumber(base)}e${exponent}`;
-        }
-
-        // Handle decimal numbers
-        const parts = str.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        
-        // Limit decimal places
-        if (parts[1]) {
-            parts[1] = parts[1].slice(0, 8);
-        }
-        
-        return parts.join('.');
-    }
-
-    // Calculator operations
-    calculate(a, op, b) {
-        this.log('Calculating', { a, op, b });
-        const num1 = parseFloat(a);
-        const num2 = parseFloat(b);
-        let result;
-
-        switch (op) {
-            case '+': result = num1 + num2; break;
-            case '−': result = num1 - num2; break;
-            case '×': result = num1 * num2; break;
-            case '÷':
-                if (num2 === 0) throw new Error('Division by zero');
-                result = num1 / num2;
-                break;
-            case '%': result = num1 % num2; break;
-            default: throw new Error('Invalid operation');
-        }
-
-        // Handle precision issues
-        result = parseFloat(result.toFixed(8));
-        this.log('Calculation result', result);
-        return result;
-    }
-
-    // Special calculations
-    calculateSpecial(value, operation) {
-        this.log('Special calculation', { value, operation });
-        const num = parseFloat(value);
-        let result;
-
-        switch (operation) {
-            case '¹/x':
-                if (num === 0) throw new Error('Division by zero');
-                result = 1 / num;
-                break;
-            case 'x²':
-                result = Math.pow(num, 2);
-                break;
-            case '√x':
-                if (num < 0) throw new Error('Invalid input for square root');
-                result = Math.sqrt(num);
-                break;
-            case '±':
-                result = -num;
-                break;
-            case '%':
-                result = num / 100;
-                break;
-            case 'C':
-                result = 0;
-                this.previousInput = '';
-                this.operation = null;
-                break;
-            case 'CE':
-                result = 0;
-                break;
-            case '⌫':
-                if (this.currentInput.length > 1) {
-                    result = parseFloat(this.currentInput.slice(0, -1));
-                } else {
-                    result = 0;
-                }
-                break;
-            default:
-                throw new Error('Invalid special operation');
-        }
-
-        // Handle precision issues
-        result = parseFloat(result.toFixed(8));
-        this.log('Special calculation result', result);
-        return result;
-    }
-
-    // Memory operations
-    memoryStore(value) {
-        this.memoryValue = parseFloat(value);
-        this.updateMemoryPanel();
-        this.log('Memory stored', this.memoryValue);
-    }
-
-    memoryRecall() {
-        this.log('Memory recalled', this.memoryValue);
-        return this.memoryValue;
-    }
-
-    memoryAdd(value) {
-        this.memoryValue = parseFloat((this.memoryValue + parseFloat(value)).toFixed(8));
-        this.updateMemoryPanel();
-        this.log('Memory added', value);
-    }
-
-    memorySubtract(value) {
-        this.memoryValue = parseFloat((this.memoryValue - parseFloat(value)).toFixed(8));
-        this.updateMemoryPanel();
-        this.log('Memory subtracted', value);
-    }
-
-    memoryClear() {
-        this.memoryValue = 0;
-        this.updateMemoryPanel();
-        this.log('Memory cleared');
-    }
-
-    // UI Updates
-    updateHistoryPanel() {
-        if (this.calculationHistory.length === 0) {
-            this.historyContent.innerHTML = '<p class="no-history">There\'s no history yet.</p>';
-        } else {
-            this.historyContent.innerHTML = this.calculationHistory.map(calc => 
-                `<div class="history-item">${calc}</div>`
-            ).join('');
-        }
-        this.log('History panel updated');
-    }
-
-    updateMemoryPanel() {
-        if (this.memoryValue === 0) {
-            this.memoryContent.innerHTML = '<p class="no-memory">There\'s nothing saved in memory.</p>';
-        } else {
-            this.memoryContent.innerHTML = `<div class="memory-item">${this.formatNumber(this.memoryValue)}</div>`;
-        }
-        this.log('Memory panel updated');
-    }
-
-    // Event Listeners
     initializeEventListeners() {
         document.querySelectorAll('.calculator button').forEach(button => {
             button.addEventListener('click', () => {
                 const action = button.dataset.action;
+                if (!action) return;
 
                 if (!isNaN(action)) {
                     // Number buttons
@@ -248,228 +74,9 @@ class Calculator {
                 this.updateDisplay();
             });
         });
-
-        // Number buttons
-        document.querySelectorAll('.number').forEach(button => {
-            button.addEventListener('click', () => {
-                this.handleNumber(button.textContent);
-            });
-        });
-
-        // Operator buttons
-        document.querySelectorAll('.operator').forEach(button => {
-            button.addEventListener('click', () => {
-                this.handleOperation(button.textContent);
-            });
-        });
-
-        // Special function buttons
-        document.querySelectorAll('.function').forEach(button => {
-            button.addEventListener('click', () => {
-                this.handleSpecialFunction(button.textContent);
-            });
-        });
-
-        // Memory buttons
-        document.querySelectorAll('.memory').forEach(button => {
-            button.addEventListener('click', () => {
-                this.handleMemory(button.id);
-            });
-        });
-
-        // Equals button
-        document.querySelector('.equals').addEventListener('click', () => {
-            this.handleEquals();
-        });
-
-        // Panel tabs
-        document.querySelectorAll('.panel-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                this.handlePanelTab(tab);
-            });
-        });
-
-        // Keyboard support
-        document.addEventListener('keydown', (event) => {
-            this.handleKeyboard(event);
-        });
-
-        this.log('Event listeners initialized');
-    }
-
-    // Event Handlers
-    handleNumber(number) {
-        this.log('Number pressed', number);
-        
-        // Handle decimal point
-        if (number === '.' && this.currentInput.includes('.')) {
-            return;
-        }
-
-        if (this.shouldResetDisplay) {
-            this.currentInput = '';
-            this.shouldResetDisplay = false;
-        }
-
-        if (this.currentInput === '0' && number !== '.') {
-            this.currentInput = number;
-        } else if (this.currentInput.length < this.maxDisplayLength) {
-            this.currentInput += number;
-        }
-
-        this.updateDisplay(this.currentInput);
     }
 
     handleOperation(op) {
-        this.log('Operation pressed', op);
-        if (this.currentInput === '') return;
-        
-        if (this.previousInput !== '') {
-            this.handleEquals();
-        }
-        
-        this.operation = op;
-        this.previousInput = this.currentInput;
-        this.currentInput = '';
-        this.updateHistory(`${this.formatNumber(this.previousInput)} ${this.operation}`);
-    }
-
-    handleSpecialFunction(func) {
-        this.log('Special function pressed', func);
-        try {
-            const result = this.calculateSpecial(this.currentInput, func);
-            this.currentInput = result.toString();
-            this.updateDisplay(this.currentInput);
-        } catch (e) {
-            alert(e.message);
-        }
-    }
-
-    handleEquals() {
-        this.log('Equals pressed');
-        if (this.previousInput === '' || this.currentInput === '' || this.operation === null) return;
-
-        try {
-            const result = this.calculate(this.previousInput, this.operation, this.currentInput);
-            const calculation = `${this.formatNumber(this.previousInput)} ${this.operation} ${this.formatNumber(this.currentInput)} = ${this.formatNumber(result)}`;
-            this.calculationHistory.unshift(calculation);
-            this.updateHistoryPanel();
-
-            this.currentInput = result.toString();
-            this.previousInput = '';
-            this.operation = null;
-            this.shouldResetDisplay = true;
-            this.updateDisplay(this.currentInput);
-            this.updateHistory('');
-        } catch (e) {
-            alert(e.message);
-        }
-    }
-
-    handleMemory(action) {
-        this.log('Memory action', action);
-        try {
-            switch (action) {
-                case 'mc': this.memoryClear(); break;
-                case 'mr': 
-                    this.currentInput = this.memoryRecall().toString();
-                    this.updateDisplay(this.currentInput);
-                    break;
-                case 'm-plus': this.memoryAdd(this.currentInput); break;
-                case 'm-minus': this.memorySubtract(this.currentInput); break;
-                case 'ms': this.memoryStore(this.currentInput); break;
-            }
-        } catch (e) {
-            alert(e.message);
-        }
-    }
-
-    handlePanelTab(tab) {
-        this.log('Panel tab clicked', tab.textContent);
-        document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        if (tab.textContent === 'History') {
-            this.historyContent.classList.remove('hidden');
-            this.memoryContent.classList.add('hidden');
-        } else {
-            this.historyContent.classList.add('hidden');
-            this.memoryContent.classList.remove('hidden');
-        }
-    }
-
-    handleKeyboard(event) {
-        this.log('Keyboard event', event.key);
-        const key = event.key;
-        
-        if (/[0-9.]/.test(key)) {
-            this.handleNumber(key);
-        } else if (['+', '-', '*', '/', '%'].includes(key)) {
-            const opMap = {
-                '*': '×',
-                '/': '÷',
-                '-': '−'
-            };
-            this.handleOperation(opMap[key] || key);
-        } else if (key === 'Enter' || key === '=') {
-            this.handleEquals();
-        } else if (key === 'Escape') {
-            this.handleSpecialFunction('C');
-        } else if (key === 'Backspace') {
-            this.handleSpecialFunction('⌫');
-        }
-    }
-
-    clear() {
-        // Reset all calculator state
-        this.currentInput = '0';
-        this.previousInput = '';
-        this.operation = null;
-        this.shouldResetDisplay = false;
-        this.calculationHistory = [];
-        
-        // Update displays
-        this.updateDisplay();
-        this.updateHistory();
-    }
-
-    updateHistory() {
-        if (!this.history) return;
-        
-        // Clear existing history
-        this.history.innerHTML = '';
-        
-        // Add each calculation to history
-        this.calculationHistory.forEach(calc => {
-            this.history.innerHTML += `${calc}<br>`;
-        });
-    }
-    
-    addToHistory(calculation) {
-        this.calculationHistory.push(calculation);
-        this.updateHistory();
-    }
-
-    appendNumber(number) {
-        if (this.shouldResetDisplay) {
-            this.currentInput = number;
-            this.shouldResetDisplay = false;
-        } else {
-            this.currentInput = this.currentInput === '0' ? number : this.currentInput + number;
-        }
-        this.updateDisplay();
-    }
-
-    appendDecimal() {
-        if (this.shouldResetDisplay) {
-            this.currentInput = '0.';
-            this.shouldResetDisplay = false;
-        } else if (!this.currentInput.includes('.')) {
-            this.currentInput += '.';
-        }
-        this.updateDisplay();
-    }
-
-    setOperation(op) {
         if (this.operation !== null) {
             this.calculate();
         }
@@ -486,16 +93,16 @@ class Calculator {
         let result;
 
         switch (this.operation) {
-            case '+':
+            case 'add':
                 result = prev + current;
                 break;
-            case '-':
+            case 'subtract':
                 result = prev - current;
                 break;
-            case '×':
+            case 'multiply':
                 result = prev * current;
                 break;
-            case '÷':
+            case 'divide':
                 if (current === 0) {
                     this.currentInput = 'Error';
                     this.updateDisplay();
@@ -508,7 +115,7 @@ class Calculator {
         }
 
         // Add to history
-        const calculation = `${prev} ${this.operation} ${current} = ${result}`;
+        const calculation = `${prev} ${this.getOperationSymbol(this.operation)} ${current} = ${result}`;
         this.calculationHistory.push(calculation);
         
         this.currentInput = result.toString();
@@ -519,22 +126,29 @@ class Calculator {
         this.updateDisplay();
         this.updateHistory();
     }
+
+    getOperationSymbol(op) {
+        switch (op) {
+            case 'add': return '+';
+            case 'subtract': return '−';
+            case 'multiply': return '×';
+            case 'divide': return '÷';
+            default: return '';
+        }
+    }
+
+    clear() {
+        this.currentInput = '0';
+        this.previousInput = '';
+        this.operation = null;
+        this.shouldResetDisplay = false;
+        this.calculationHistory = [];
+        this.updateDisplay();
+        this.updateHistory();
+    }
 }
 
-// Initialize calculator
+// Initialize calculator when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    // Create new calculator instance
-    const calculator = new Calculator();
-    
-    // Reset calculator state
-    calculator.currentInput = '0';
-    calculator.previousInput = '';
-    calculator.operation = null;
-    calculator.shouldResetDisplay = false;
-    calculator.memoryValue = 0;
-    calculator.calculationHistory = [];
-    
-    // Initialize display
-    calculator.initializeDisplay();
-    calculator.initializeEventListeners();
+    new Calculator();
 }); 
