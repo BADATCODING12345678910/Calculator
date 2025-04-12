@@ -13,12 +13,13 @@ const calculator = {
     },
 
     updateDisplay() {
-        // Format large numbers with commas
         let displayValue = this.currentValue;
         if (!isNaN(displayValue) && displayValue !== '') {
             const num = parseFloat(displayValue);
-            if (Math.abs(num) >= 1000) {
+            if (Math.abs(num) >= 1000 && Math.abs(num) < 1e16) {
                 displayValue = num.toLocaleString('en-US');
+            } else if (Math.abs(num) >= 1e16) {
+                displayValue = num.toExponential(10);
             }
         }
         this.display.textContent = displayValue;
@@ -75,13 +76,41 @@ const calculator = {
     },
 
     handleSquare() {
-        if (this.currentValue !== 'Error') {
-            const num = parseFloat(this.currentValue);
-            const result = num * num;
-            this.history.push(`sqr(${this.currentValue}) = ${result}`);
-            this.currentValue = result.toString();
+        if (this.currentValue === 'Error') return;
+        
+        const num = parseFloat(this.currentValue);
+        
+        // Check if the number is too large to square safely
+        if (Math.abs(num) > 1e154) {  // Square root of Number.MAX_VALUE is roughly 1e154
+            this.currentValue = 'Error';
+            this.history.push(`sqr(${num}) = Error (Number too large)`);
             this.updateDisplay();
+            return;
         }
+        
+        const result = num * num;
+        
+        // Check if result is valid and not too large
+        if (!isFinite(result) || isNaN(result)) {
+            this.currentValue = 'Error';
+            this.history.push(`sqr(${num}) = Error (Invalid result)`);
+        } else {
+            // Format the result to prevent excessive decimal places
+            const formattedResult = this.formatNumber(result);
+            this.history.push(`sqr(${num}) = ${formattedResult}`);
+            this.currentValue = formattedResult;
+        }
+        
+        this.updateDisplay();
+        this.shouldResetDisplay = true;  // Reset display on next number input
+    },
+
+    formatNumber(num) {
+        if (Math.abs(num) >= 1e16) {
+            return num.toExponential(10);
+        }
+        // Limit decimal places to 10 for regular numbers
+        return Number(num.toPrecision(10)).toString();
     },
 
     handleSquareRoot() {
